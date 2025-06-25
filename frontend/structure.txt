@@ -1,0 +1,42 @@
+/frontend
+│
+├── /public
+│   └── index.html
+│
+├── /src
+│   ├── /assets              → Images, logos, icons
+│
+│   ├── /components          → Reusable components
+│   │   ├── Navbar.jsx
+│   │   ├── Sidebar.jsx
+│   │   └── RoomCard.jsx
+│
+│   ├── /pages               → Page-wise components
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── Rooms.jsx
+│   │   ├── Bookings.jsx
+│   │   └── Billing.jsx
+│
+│   ├── /context             → AuthContext, AppContext, etc.
+│   │   └── AuthContext.js
+│
+│   ├── /hooks               → Custom React hooks
+│   │   └── useAuth.js
+│
+│   ├── /services            → Axios API handlers
+│   │   ├── authService.js
+│   │   ├── roomService.js
+│   │   └── bookingService.js
+│
+│   ├── /routes              → React router setup
+│   │   └── AppRoutes.jsx
+│
+│   ├── App.js               → Main app component
+│   ├── index.js             → ReactDOM entry point
+│   └── tailwind.config.js   → Tailwind CSS config
+│
+├── .env
+├── package.json
+└── README.md
