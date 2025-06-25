@@ -1,0 +1,42 @@
+/backend
+│
+├── /config               → DB and other configs
+│   └── db.js
+│
+├── /controllers          → All request handling logic
+│   ├── authController.js
+│   ├── userController.js
+│   ├── roomController.js
+│   ├── bookingController.js
+│   ├── billingController.js
+│   └── feedbackController.js
+│
+├── /middlewares          → Auth, errors, role checking
+│   ├── auth.js
+│   ├── role.js
+│   └── errorHandler.js
+│
+├── /models               → Mongoose schemas
+│   ├── User.js
+│   ├── Room.js
+│   ├── Booking.js
+│   ├── Invoice.js
+│   ├── Maintenance.js
+│   └── Feedback.js
+│
+├── /routes               → All route files
+│   ├── authRoutes.js
+│   ├── userRoutes.js
+│   ├── roomRoutes.js
+│   ├── bookingRoutes.js
+│   ├── billingRoutes.js
+│   └── feedbackRoutes.js
+│
+├── /utils                → Helper functions
+│   ├── generateToken.js
+│   └── sendEmail.js
+│
+├── .env                  → Environment variables
+├── server.js             → App entry point
+├── package.json
+└── README.md
