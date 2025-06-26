@@ -11,7 +11,10 @@ const userSchema = new mongoose.Schema(
       default: "guest",
     },
     contact: String,
-    preferences: String,
+    preferences: {
+      type: String,
+      default: "",
+    },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
