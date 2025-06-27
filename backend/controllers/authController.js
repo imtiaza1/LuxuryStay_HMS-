@@ -8,7 +8,7 @@ export const loginUser = async (req, res) => {
   try {
     // Check if user exists
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "User not found" });
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
@@ -24,6 +24,7 @@ export const loginUser = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+    res.cookie("token", token);
 
     res.status(200).json({
       message: "Login successful",
