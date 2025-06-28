@@ -8,30 +8,36 @@ export const createRoom = async (req, res) => {
     const { roomNumber, type, price, status, features } = req.body;
     const images = req.files?.map((file) => file.filename) || [];
 
-    // Check required fields
+    // Validate fields
     if (!roomNumber || roomNumber.trim() === "") {
-      return res.status(400).json({ message: "roomNumber cannot be empty" });
+      return res.status(400).json({ message: "Room number cannot be empty." });
     }
     if (!type || type.trim() === "") {
-      return res.status(400).json({ message: "type cannot be empty" });
+      return res.status(400).json({ message: "Type cannot be empty." });
+    }
+    const allowedTypes = ["single", "double", "suite", "deluxe"];
+    if (!allowedTypes.includes(type.trim())) {
+      return res.status(400).json({
+        message: "Type must be one of: single, double, suite, or deluxe.",
+      });
     }
     if (!price || isNaN(price)) {
       return res
         .status(400)
-        .json({ message: "price must be a number and cannot be empty" });
+        .json({ message: "Price must be a valid number and cannot be empty." });
     }
-    const allowedStatus = ["single", "double", "suite", "deluxe"];
-
+    const allowedStatus = ["available", "occupied", "cleaning", "maintenance"];
     if (!status || !allowedStatus.includes(status.trim())) {
       return res.status(400).json({
-        message: "status must be one of: single, double, suite, or deluxe",
+        message:
+          "Status must be one of: available, occupied, cleaning, or maintenance.",
       });
     }
-
     if (!features || features.trim() === "") {
-      return res.status(400).json({ message: "features can not be ampty" });
+      return res.status(400).json({ message: "Features cannot be empty." });
     }
-    // Validate images: only jpg and png
+
+    // Validate images
     if (req.files && req.files.length > 0) {
       const allowedExts = [".jpg", ".jpeg", ".png"];
       for (const file of req.files) {
@@ -43,24 +49,28 @@ export const createRoom = async (req, res) => {
         }
       }
     }
-    if (
-      images[0].mimetype !== "image/jpeg" &&
-      images[0].mimetype !== "image/png"
-    ) {
+
+    // Check for duplicate room number
+    const exists = await Room.findOne({ roomNumber });
+    if (exists) {
+      // delete the uploaded images if room already exists
+      if (req.files && req.files.length > 0) {
+        req.files.forEach((file) => {
+          const filePath = path.join("uploads/rooms", file.filename);
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        });
+      }
       return res
         .status(400)
-        .json({ message: "Please upload a valid image file", success: false });
+        .json({ message: "A room with this number already exists." });
     }
-    //check room already exists
-    const exists = await Room.findOne({ roomNumber });
-    if (exists) return res.status(400).json({ message: "Room already exists" });
 
     const newRoom = await Room.create({
       roomNumber,
       type,
       price,
       status,
-      features: features ? JSON.parse(features) : [],
+      features,
       images,
     });
 
@@ -84,7 +94,9 @@ export const getRooms = async (req, res) => {
 export const getRoomById = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
-    if (!room) return res.status(404).json({ message: "Room not found" });
+    if (!room) {
+      return res.status(404).json({ message: "Room not found." });
+    }
     res.status(200).json({ success: true, room });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -95,13 +107,71 @@ export const getRoomById = async (req, res) => {
 export const updateRoom = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
-    if (!room) return res.status(404).json({ message: "Room not found" });
+    if (!room) {
+      return res.status(404).json({ message: "Room not found." });
+    }
 
     const { roomNumber, type, price, status, features } = req.body;
     const newImages = req.files?.map((file) => file.filename);
 
-    // delete old images if new ones uploaded
+    // Validate fields
+    if (!roomNumber || roomNumber.trim() === "") {
+      return res.status(400).json({ message: "Room number cannot be empty." });
+    }
+    if (!type || type.trim() === "") {
+      return res.status(400).json({ message: "Type cannot be empty." });
+    }
+    const allowedTypes = ["single", "double", "suite", "deluxe"];
+    if (!allowedTypes.includes(type.trim())) {
+      return res.status(400).json({
+        message: "Type must be one of: single, double, suite, or deluxe.",
+      });
+    }
+    if (!price || isNaN(price)) {
+      return res
+        .status(400)
+        .json({ message: "Price must be a valid number and cannot be empty." });
+    }
+    const allowedStatus = ["available", "occupied", "cleaning", "maintenance"];
+    if (!status || !allowedStatus.includes(status.trim())) {
+      return res.status(400).json({
+        message:
+          "Status must be one of: available, occupied, cleaning, or maintenance.",
+      });
+    }
+    if (!features || features.trim() === "") {
+      return res.status(400).json({ message: "Features cannot be empty." });
+    }
+
+    // Validate images
+    if (req.files && req.files.length > 0) {
+      const allowedExts = [".jpg", ".jpeg", ".png"];
+      for (const file of req.files) {
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (!allowedExts.includes(ext)) {
+          return res.status(400).json({
+            message: `Invalid image type for ${file.originalname}. Only JPG and PNG files are allowed.`,
+          });
+        }
+      }
+    }
+    // Check for duplicate room number
+    const exists = await Room.findOne({ roomNumber });
+    if (exists) {
+      // delete the uploaded images if room already exists
+      if (req.files && req.files.length > 0) {
+        req.files.forEach((file) => {
+          const filePath = path.join("uploads/rooms", file.filename);
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        });
+      }
+      return res
+        .status(400)
+        .json({ message: "A room with this number already exists." });
+    }
+    // replace images if new ones uploaded
     if (newImages?.length) {
+      // remove old images
       room.images.forEach((img) => {
         const filePath = path.join("uploads/rooms", img);
         if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
@@ -113,7 +183,7 @@ export const updateRoom = async (req, res) => {
     room.type = type || room.type;
     room.price = price || room.price;
     room.status = status || room.status;
-    room.features = features ? JSON.parse(features) : room.features;
+    room.features = features || room.features;
 
     const updated = await room.save();
     res.status(200).json({ success: true, room: updated });
@@ -126,9 +196,11 @@ export const updateRoom = async (req, res) => {
 export const deleteRoom = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
-    if (!room) return res.status(404).json({ message: "Room not found" });
+    if (!room) {
+      return res.status(404).json({ message: "Room not found." });
+    }
 
-    // delete images
+    // remove images from disk
     room.images.forEach((img) => {
       const filePath = path.join("uploads/rooms", img);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
@@ -137,7 +209,7 @@ export const deleteRoom = async (req, res) => {
     await room.deleteOne();
     res
       .status(200)
-      .json({ success: true, message: "Room deleted successfully" });
+      .json({ success: true, message: "Room deleted successfully." });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

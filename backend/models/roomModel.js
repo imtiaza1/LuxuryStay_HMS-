@@ -13,10 +13,9 @@ const roomSchema = new mongoose.Schema({
     enum: ["available", "occupied", "cleaning", "maintenance"],
     default: "available",
   },
-  features: { type: [String], default: [] },
+  features: { type: String },
   images: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now },
 });
 
-const Room = mongoose.model("Room", roomSchema);
-export default Room;
+export default mongoose.model("Room", roomSchema);

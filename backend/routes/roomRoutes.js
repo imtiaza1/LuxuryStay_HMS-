@@ -17,17 +17,16 @@ router.post(
   protect,
   restrictTo("admin", "manager"),
   upload.array("images", 5),
-  // validateRoom,
   createRoom
 );
 router.put(
-  "/:id",
+  "/update/:id",
   protect,
   restrictTo("admin", "manager"),
   upload.array("images", 5),
   updateRoom
 );
-router.delete("/:id", protect, restrictTo("admin"), deleteRoom);
+router.delete("/delete/:id", protect, restrictTo("admin"), deleteRoom);
 router.get("/", getRooms);
 router.get("/:id", getRoomById);
 
