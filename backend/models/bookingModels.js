@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
-    guest: {
+    guestId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    room: {
+    roomId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Room",
       required: true,
@@ -27,6 +27,11 @@ const bookingSchema = new mongoose.Schema(
     },
     additionalServices: [String], // laundry, food, wake-up call etc.
     totalPrice: Number,
+
+    billingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Billing",
+    },
   },
   { timestamps: true }
 );
