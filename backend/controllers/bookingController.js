@@ -46,6 +46,7 @@ export const createBooking = async (req, res) => {
 
     res.status(201).json({
       success: true,
+      message: "succes",
       booking,
       billing,
     });
