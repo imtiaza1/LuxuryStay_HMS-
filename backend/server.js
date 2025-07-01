@@ -14,6 +14,9 @@ import housekeepingRoutes from "./routes/housekeepingRoutes.js";
 import managerRoutes from "./routes/managerRoutes.js";
 import receptionistRoutes from "./routes/receptionistRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
+import { generateEnvFile } from "./utils/utils.js";
+//auto generate .env file
+generateEnvFile();
 dotenv.config();
 connectDB();
 

@@ -1,7 +1,9 @@
+import dotenv from "dotenv";
 import nodemailer from "nodemailer";
 import Stripe from "stripe";
 import Billing from "../models/billingModels.js";
 import Booking from "../models/bookingModels.js";
+dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -42,7 +44,6 @@ export const createCashBilling = async (req, res) => {
 
     const booking = await Booking.findById(bookingId).populate("guestId");
     if (!booking) return res.status(404).json({ message: "Booking not found" });
-
     const invoiceNumber = `INV-${Date.now()}`;
 
     const billing = await Billing.create({
@@ -62,7 +63,7 @@ export const createCashBilling = async (req, res) => {
 
     res.status(201).json({ success: true, billing });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: err.message, success: false });
   }
 };
 

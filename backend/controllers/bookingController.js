@@ -1,6 +1,8 @@
 import Billing from "../models/billingModels.js";
 import Booking from "../models/bookingModels.js";
 import Room from "../models/roomModel.js";
+import User from "../models/userModel.js";
+import { sendBookingConfirmationEmail } from "../utils/sendBookingEmail.js";
 
 export const createBooking = async (req, res) => {
   try {
@@ -14,7 +16,8 @@ export const createBooking = async (req, res) => {
     } = req.body;
 
     const guestId = req.user.id;
-
+    //find user
+    const user = await User.findById(guestId);
     // verify room exists
     const room = await Room.findById(roomId);
     if (!room) {
@@ -43,6 +46,7 @@ export const createBooking = async (req, res) => {
     // 3️⃣ Booking me billingId update
     booking.billingId = billing._id;
     await booking.save();
+    await sendBookingConfirmationEmail(user.email, booking);
 
     res.status(201).json({
       success: true,

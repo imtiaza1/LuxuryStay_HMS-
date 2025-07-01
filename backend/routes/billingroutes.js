@@ -9,12 +9,14 @@ import {
   updateBilling,
 } from "../controllers/billingController.js";
 import { protect } from "../middlewares/auth.js";
+import { restrictTo } from "../middlewares/role.js";
 
 const router = express.Router();
 
 router.post(
   "/cash",
-  protect("admin", "receptionist", "manager"),
+  protect,
+  restrictTo("admin", "receptionist", "manager", "guest"),
   createCashBilling
 );
 router.post("/payment-intent", createPaymentIntent); // create stripe payment intent
