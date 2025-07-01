@@ -2,9 +2,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import connectDB from "./config/db.js";
-
 import path from "path";
+import connectDB from "./config/db.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import billingRouter from "./routes/billingroutes.js";
@@ -14,9 +13,7 @@ import housekeepingRoutes from "./routes/housekeepingRoutes.js";
 import managerRoutes from "./routes/managerRoutes.js";
 import receptionistRoutes from "./routes/receptionistRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
-import { generateEnvFile } from "./utils/utils.js";
-//auto generate .env file
-generateEnvFile();
+
 dotenv.config();
 connectDB();
 
