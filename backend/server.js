@@ -12,7 +12,9 @@ import guestRoutes from "./routes/guestRoutes.js";
 import housekeepingRoutes from "./routes/housekeepingRoutes.js";
 import managerRoutes from "./routes/managerRoutes.js";
 import receptionistRoutes from "./routes/receptionistRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
+import taskRoutes from "./routes/taskRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -40,6 +42,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/billings", billingRouter);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

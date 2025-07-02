@@ -24,3 +24,25 @@ export const registerGuest = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// show all guests
+export const getAllGuest = async (req, res) => {
+  try {
+    const guests = await User.find({ role: "guest" });
+
+    if (!guests || guests.length === 0) {
+      return res.status(404).json({
+        message: "No guests found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Fetched all guests",
+      users: guests,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
