@@ -24,3 +24,24 @@ export const registerManager = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+//// show all manager
+export const getAllManager = async (req, res) => {
+  try {
+    const guests = await User.find({ role: "manager" });
+
+    if (!guests || guests.length === 0) {
+      return res.status(404).json({
+        message: "No manager found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Fetched all manager",
+      users: guests,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};

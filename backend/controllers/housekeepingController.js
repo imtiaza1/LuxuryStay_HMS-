@@ -40,7 +40,7 @@ export const getMyTasks = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-// show all guests
+// show all housekeeper
 export const getAllHousekeeper = async (req, res) => {
   try {
     const guests = await User.find({ role: "housekeeping" });

@@ -6,7 +6,8 @@ export const registerGuest = async (req, res) => {
 
   try {
     const exist = await User.findOne({ email });
-    if (exist) return res.status(400).json({ message: "Guest already exists" });
+    if (exist)
+      return res.status(400).json({ message: "Email already exists!" });
 
     const hash = await bcrypt.hash(password, 10);
 

@@ -2,8 +2,10 @@ import Joi from "joi";
 
 // Validation schema
 const userSchema = Joi.object({
+  name: Joi.string().trim().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
+  contact: Joi.string().min(11).required(),
   role: Joi.string()
     .valid("admin", "manager", "receptionist", "housekeeping", "guest")
     .required(),
