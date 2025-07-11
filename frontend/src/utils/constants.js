@@ -55,4 +55,11 @@ export const API_ENDPOINTS = {
   USERS: "/api/users",
   DASHBOARD: "/api/dashboard",
   LOGOUT: "/api/auth/logout",
+  // dashborad
+  TOTAL_REVENUE: "/api/billings/total-revenue",
+  ACTIVE_GUESTS: "/api/guest/active-guests/count",
+  AVAILABLE_ROOMS: "/api/rooms/available/rooms",
+  RECENT_BOOKINGS: "/api/bookings/",
+  HOUSEKEEPING_TASKS: "/api/tasks/",
+  TOTAL_BOOKINGS: "/api/bookings/total",
 };

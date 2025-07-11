@@ -49,7 +49,6 @@ const Register = () => {
       phone: formData.phone,
       password: formData.password,
     };
-    console.log(data);
 
     try {
       const result = await register(data);

@@ -1,137 +1,148 @@
-import React, { useState } from 'react';
-import DashboardLayout from '../../components/DashboardLayout';
-import { 
-  Users, 
-  Hotel, 
-  Calendar, 
-  DollarSign, 
-  TrendingUp, 
-  TrendingDown,
-  Star,
-  CheckCircle,
+import {
   AlertCircle,
-  Clock
-} from 'lucide-react';
+  Calendar,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  Hotel,
+  Star,
+  TrendingDown,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
+import DashboardLayout from "../../components/DashboardLayout";
+import { useDashboard } from "../../contexts/DashboardContext";
+import { useToast } from "../../contexts/ToastContext";
 
 const AdminDashboard = () => {
-  const [timeRange, setTimeRange] = useState('30d');
+  const [timeRange, setTimeRange] = useState("30d");
+  const {
+    totalRevenue,
+    totalBookings,
+    activeGuests,
+    availableRooms,
+    // recentBookings,
+    // housekeepingTasks,
+  } = useDashboard();
+  const { success, error } = useToast();
 
   const stats = [
     {
-      title: 'Total Revenue',
-      value: '$124,500',
-      change: '+12.5%',
-      trend: 'up',
+      title: "Total Revenue",
+      value: totalRevenue,
+      change: "+12.5%",
+      trend: "up",
       icon: DollarSign,
-      color: 'green'
+      color: "green",
     },
     {
-      title: 'Total Bookings',
-      value: '1,284',
-      change: '+8.2%',
-      trend: 'up',
+      title: "Total Bookings",
+      value: totalBookings,
+      change: "+8.2%",
+      trend: "up",
       icon: Calendar,
-      color: 'blue'
+      color: "blue",
     },
     {
-      title: 'Active Guests',
-      value: '156',
-      change: '-2.1%',
-      trend: 'down',
+      title: "Active Guests",
+      value: activeGuests,
+      change: "-2.1%",
+      trend: "down",
       icon: Users,
-      color: 'purple'
+      color: "purple",
     },
     {
-      title: 'Available Rooms',
-      value: '42',
-      change: '+5.4%',
-      trend: 'up',
+      title: "Available Rooms",
+      value: availableRooms,
+      change: "+5.4%",
+      trend: "up",
       icon: Hotel,
-      color: 'orange'
-    }
+      color: "orange",
+    },
   ];
 
   const recentBookings = [
     {
       id: 1,
-      guest: 'John Smith',
-      room: 'Deluxe Ocean View',
-      checkIn: '2024-01-15',
-      checkOut: '2024-01-18',
-      amount: '$897',
-      status: 'confirmed'
+      guest: "John Smith",
+      room: "Deluxe Ocean View",
+      checkIn: "2024-01-15",
+      checkOut: "2024-01-18",
+      amount: "$897",
+      status: "confirmed",
     },
     {
       id: 2,
-      guest: 'Emily Johnson',
-      room: 'Presidential Suite',
-      checkIn: '2024-01-16',
-      checkOut: '2024-01-20',
-      amount: '$2,696',
-      status: 'checked_in'
+      guest: "Emily Johnson",
+      room: "Presidential Suite",
+      checkIn: "2024-01-16",
+      checkOut: "2024-01-20",
+      amount: "$2,696",
+      status: "checked_in",
     },
     {
       id: 3,
-      guest: 'Michael Brown',
-      room: 'Standard Garden View',
-      checkIn: '2024-01-17',
-      checkOut: '2024-01-19',
-      amount: '$398',
-      status: 'pending'
-    }
+      guest: "Michael Brown",
+      room: "Standard Garden View",
+      checkIn: "2024-01-17",
+      checkOut: "2024-01-19",
+      amount: "$398",
+      status: "pending",
+    },
   ];
 
   const housekeepingTasks = [
     {
       id: 1,
-      room: 'Room 101',
-      type: 'Cleaning',
-      assignedTo: 'Maria Garcia',
-      status: 'completed',
-      priority: 'high'
+      room: "Room 101",
+      type: "Cleaning",
+      assignedTo: "Maria Garcia",
+      status: "completed",
+      priority: "high",
     },
     {
       id: 2,
-      room: 'Room 205',
-      type: 'Maintenance',
-      assignedTo: 'David Wilson',
-      status: 'in_progress',
-      priority: 'medium'
+      room: "Room 205",
+      type: "Maintenance",
+      assignedTo: "David Wilson",
+      status: "in_progress",
+      priority: "medium",
     },
     {
       id: 3,
-      room: 'Room 310',
-      type: 'Inspection',
-      assignedTo: 'Sarah Lee',
-      status: 'pending',
-      priority: 'low'
-    }
+      room: "Room 310",
+      type: "Inspection",
+      assignedTo: "Sarah Lee",
+      status: "pending",
+      priority: "low",
+    },
   ];
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'confirmed':
-      case 'completed':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
-      case 'checked_in':
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case "confirmed":
+      case "completed":
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      case "checked_in":
+      case "in_progress":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'confirmed':
-      case 'completed':
+      case "confirmed":
+      case "completed":
         return <CheckCircle className="w-4 h-4" />;
-      case 'checked_in':
-      case 'in_progress':
+      case "checked_in":
+      case "in_progress":
         return <Clock className="w-4 h-4" />;
-      case 'pending':
+      case "pending":
         return <AlertCircle className="w-4 h-4" />;
       default:
         return <Clock className="w-4 h-4" />;
@@ -162,17 +173,26 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
-            const TrendIcon = stat.trend === 'up' ? TrendingUp : TrendingDown;
-            
+            const TrendIcon = stat.trend === "up" ? TrendingUp : TrendingDown;
+
             return (
-              <div key={index} className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+              <div
+                key={index}
+                className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm"
+              >
                 <div className="flex items-center justify-between">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center bg-${stat.color}-100 dark:bg-${stat.color}-900/20`}>
-                    <Icon className={`w-6 h-6 text-${stat.color}-600 dark:text-${stat.color}-400`} />
+                  <div
+                    className={`w-12 h-12 rounded-lg flex items-center justify-center bg-${stat.color}-100 dark:bg-${stat.color}-900/20`}
+                  >
+                    <Icon
+                      className={`w-6 h-6 text-${stat.color}-600 dark:text-${stat.color}-400`}
+                    />
                   </div>
-                  <div className={`flex items-center space-x-1 text-sm ${
-                    stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  <div
+                    className={`flex items-center space-x-1 text-sm ${
+                      stat.trend === "up" ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
                     <TrendIcon className="w-4 h-4" />
                     <span>{stat.change}</span>
                   </div>
@@ -199,7 +219,10 @@ const AdminDashboard = () => {
             </h3>
             <div className="space-y-4">
               {recentBookings.map((booking) => (
-                <div key={booking.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div
+                  key={booking.id}
+                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                >
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <h4 className="font-medium text-gray-900 dark:text-white">
@@ -217,9 +240,13 @@ const AdminDashboard = () => {
                     </p>
                   </div>
                   <div className="ml-4">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        booking.status
+                      )}`}
+                    >
                       {getStatusIcon(booking.status)}
-                      {booking.status.replace('_', ' ')}
+                      {booking.status.replace("_", " ")}
                     </span>
                   </div>
                 </div>
@@ -234,17 +261,24 @@ const AdminDashboard = () => {
             </h3>
             <div className="space-y-4">
               {housekeepingTasks.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div
+                  key={task.id}
+                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                >
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <h4 className="font-medium text-gray-900 dark:text-white">
                         {task.room}
                       </h4>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        task.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' :
-                        task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
-                        'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                      }`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          task.priority === "high"
+                            ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                            : task.priority === "medium"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+                            : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                        }`}
+                      >
                         {task.priority}
                       </span>
                     </div>
@@ -253,9 +287,13 @@ const AdminDashboard = () => {
                     </p>
                   </div>
                   <div className="ml-4">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        task.status
+                      )}`}
+                    >
                       {getStatusIcon(task.status)}
-                      {task.status.replace('_', ' ')}
+                      {task.status.replace("_", " ")}
                     </span>
                   </div>
                 </div>
