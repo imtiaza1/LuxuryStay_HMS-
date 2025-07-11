@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  availableRooms,
   createRoom,
   deleteRoom,
   getRoomById,
@@ -28,6 +29,7 @@ router.put(
 );
 router.delete("/delete/:id", protect, restrictTo("admin"), deleteRoom);
 router.get("/", getRooms);
+router.get("/available/rooms", availableRooms);
 router.get("/:id", getRoomById);
 
 export default router;

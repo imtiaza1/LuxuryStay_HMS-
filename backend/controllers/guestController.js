@@ -47,3 +47,17 @@ export const getAllGuest = async (req, res) => {
     });
   }
 };
+// Get total count of active guest accounts
+export const totalActiveGuests = async (req, res) => {
+  try {
+    const count = await User.countDocuments({ role: "guest", isActive: true });
+
+    res.status(200).json({
+      success: true,
+      totalActiveGuests: count,
+    });
+  } catch (error) {
+    console.error("Error fetching active guests:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

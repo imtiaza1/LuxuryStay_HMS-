@@ -141,3 +141,17 @@ export const deleteBooking = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// Get total number of bookings
+export const totalBookings = async (req, res) => {
+  try {
+    const count = await Booking.countDocuments();
+
+    res.status(200).json({
+      success: true,
+      totalBookings: count,
+    });
+  } catch (error) {
+    console.error("Error getting total bookings:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

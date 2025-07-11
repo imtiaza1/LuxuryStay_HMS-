@@ -156,3 +156,24 @@ export const deleteBilling = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Get total revenue from all billings
+export const getTotalRevenue = async (req, res) => {
+  try {
+    const billings = await Billing.find({ status: "paid" });
+
+    const totalRevenue = billings.reduce((sum, bill) => {
+      return sum + (bill.amount || 0);
+    }, 0);
+
+    res.status(200).json({
+      success: true,
+      totalRevenue,
+    });
+  } catch (err) {
+    console.error("Error calculating total revenue:", err.message);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: err.message });
+  }
+};

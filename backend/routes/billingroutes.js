@@ -6,6 +6,7 @@ import {
   deleteBilling,
   getAllBillings,
   getBilling,
+  getTotalRevenue,
   updateBilling,
 } from "../controllers/billingController.js";
 import { protect } from "../middlewares/auth.js";
@@ -23,6 +24,7 @@ router.post("/payment-intent", createPaymentIntent); // create stripe payment in
 router.post("/confirm", confirmOnlineBilling); // confirm after success
 
 router.get("/", getAllBillings);
+router.get("/total-revenue", getTotalRevenue);
 router.get("/:id", getBilling);
 router.put("/:id", updateBilling);
 router.delete("/:id", deleteBilling);

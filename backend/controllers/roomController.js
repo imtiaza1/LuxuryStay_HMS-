@@ -89,6 +89,16 @@ export const getRooms = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// get all AVAILABLE_ROOMS
+export const availableRooms = async (req, res) => {
+  try {
+    const rooms = await Room.find({ status: "available" });
+    const totalRooms = rooms.length;
+    res.status(200).json({ success: true, totalRooms });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // READ ONE
 export const getRoomById = async (req, res) => {

@@ -4,6 +4,7 @@ import {
   deleteBooking,
   getAllBookings,
   getMyBookings,
+  totalBookings,
   updateBookingStatus,
 } from "../controllers/bookingController.js";
 import { protect } from "../middlewares/auth.js";
@@ -32,6 +33,8 @@ router.get(
   restrictTo("guest", "admin"),
   getMyBookings
 );
+//get total bookings
+router.get("/total", totalBookings);
 //update bookings
 router.put(
   "/:id",
