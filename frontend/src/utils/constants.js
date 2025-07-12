@@ -44,9 +44,14 @@ export const TASK_STATUS = {
 export const API_ENDPOINTS = {
   LOGIN: "/api/auth/login",
   GUEST_REGISTER: "/api/guest/register",
+  //GUEST
   RECEPTIONIST_REGISTER: "/api/receptionist/register",
   HOUSEKEEPING_REGISTER: "/api/housekeeping/register",
   MANAGER_REGISTER: "/api/manager/register",
+  GET_ALL_STAFF: "/api/admin/staff",
+  DELETE_STAFF: "/api/admin/staff/delete",
+  UPDATE_STAFF: "/api/admin/staff/update",
+  //
   REFRESH: "/api/auth/refresh",
   ROOMS: "/api/rooms",
   BOOKINGS: "/api/bookings",

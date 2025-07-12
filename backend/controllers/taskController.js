@@ -4,34 +4,36 @@ import User from "../models/userModel.js";
 // CREATE
 export const createTask = async (req, res) => {
   const user_id = req.user.id;
-  console.log(user_id);
   try {
-    const { title, description, assignedToEmail, dueDate } = req.body;
+    const { title, description, assignedToEmail, dueDate, priority, type } =
+      req.body;
 
-    if (!title || !assignedToEmail) {
-      return res
-        .status(400)
-        .json({ message: "Title and assignedToEmail are required." });
+    if (!title || !assignedToEmail || !priority || !type) {
+      return res.status(400).json({
+        message: "Title, assignedToEmail, priority, and type are required.",
+      });
     }
 
-    // find user by email
     const user = await User.findOne({ email: assignedToEmail });
     if (!user) {
       return res
         .status(404)
         .json({ message: "Staff with this email not found" });
     }
+
     const newTask = await Task.create({
       title,
       description,
-      assignedTo: user._id, // store user id
+      assignedTo: user._id,
       dueDate,
+      priority,
+      type,
       createdBy: user_id,
     });
 
     res.status(201).json({ success: true, task: newTask });
   } catch (error) {
-    res.status(500).json({ message: error.message, hello: "jdkdj" });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -63,12 +65,12 @@ export const getTaskById = async (req, res) => {
 // UPDATE
 export const updateTask = async (req, res) => {
   try {
-    const { title, description, assignedToEmail, status, dueDate } = req.body;
+    const { title, description, assignedToEmail, status, priority, type } =
+      req.body;
 
     const task = await Task.findById(req.params.id);
     if (!task) return res.status(404).json({ message: "Task not found" });
 
-    // if assignedToEmail is passed, update the staff
     if (assignedToEmail) {
       const user = await User.findOne({ email: assignedToEmail });
       if (!user) {
@@ -82,7 +84,8 @@ export const updateTask = async (req, res) => {
     task.title = title || task.title;
     task.description = description || task.description;
     task.status = status || task.status;
-    task.dueDate = dueDate || task.dueDate;
+    task.priority = priority || task.priority;
+    task.type = type || task.type;
 
     const updated = await task.save();
     res.status(200).json({ success: true, task: updated });

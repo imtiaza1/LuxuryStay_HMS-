@@ -10,8 +10,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user, login } = useAuth();
   const { success, error } = useToast();
+  const { user, login } = useAuth();
 
   if (user) {
     return <Navigate to={`/dashboard/${user.role}`} replace />;

@@ -51,7 +51,7 @@ export const createCashBilling = async (req, res) => {
       amount,
       invoiceNumber,
       paymentMethod: "cash",
-      status: "paid",
+      status: "confirmed",
       paidAt: new Date(),
       notes,
     });
@@ -100,7 +100,7 @@ export const confirmOnlineBilling = async (req, res) => {
       amount,
       invoiceNumber,
       paymentMethod: "online",
-      status: "paid",
+      status: "confirmed",
       paidAt: new Date(),
     });
 
@@ -160,7 +160,7 @@ export const deleteBilling = async (req, res) => {
 // Get total revenue from all billings
 export const getTotalRevenue = async (req, res) => {
   try {
-    const billings = await Billing.find({ status: "paid" });
+    const billings = await Billing.find({ status: "confirmed" });
 
     const totalRevenue = billings.reduce((sum, bill) => {
       return sum + (bill.amount || 0);

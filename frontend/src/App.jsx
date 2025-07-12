@@ -22,7 +22,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 
 // Dashboard Pages
-import AdminDashboard from "./pages/dashboards/AdminDashboard";
+import AdminRoutes from "./pages/dashboards/AdminRoutes";
 import GuestDashboard from "./pages/dashboards/GuestDashboard";
 import HousekeepingDashboard from "./pages/dashboards/HousekeepingDashboard";
 import ManagerDashboard from "./pages/dashboards/ManagerDashboard";
@@ -52,14 +52,23 @@ function App() {
                   <Route path="/register" element={<Register />} />
 
                   {/* Protected Dashboard Routes */}
-                  <Route
+                  {/* <Route
                     path="/dashboard/admin"
                     element={
                       <ProtectedRoute allowedRoles={["admin"]}>
                         <AdminDashboard />
                       </ProtectedRoute>
                     }
+                  /> */}
+                  <Route
+                    path="/dashboard/admin/*"
+                    element={
+                      <ProtectedRoute allowedRoles={["admin"]}>
+                        <AdminRoutes />
+                      </ProtectedRoute>
+                    }
                   />
+
                   <Route
                     path="/dashboard/manager"
                     element={
