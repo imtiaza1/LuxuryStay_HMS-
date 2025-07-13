@@ -122,6 +122,7 @@ export const updateRoom = async (req, res) => {
     }
 
     const { roomNumber, type, price, status, features } = req.body;
+
     const newImages = req.files?.map((file) => file.filename);
 
     // Validate fields
@@ -166,19 +167,23 @@ export const updateRoom = async (req, res) => {
       }
     }
     // Check for duplicate room number
-    const exists = await Room.findOne({ roomNumber });
-    if (exists) {
-      // delete the uploaded images if room already exists
+    const existingRoom = await Room.findOne({ roomNumber });
+
+    // Allow if same room, block if it's used by another room
+    if (existingRoom && existingRoom._id.toString() !== room._id.toString()) {
+      // delete uploaded images since update fails
       if (req.files && req.files.length > 0) {
         req.files.forEach((file) => {
           const filePath = path.join("uploads/rooms", file.filename);
           if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         });
       }
+
       return res
         .status(400)
         .json({ message: "A room with this number already exists." });
     }
+
     // replace images if new ones uploaded
     if (newImages?.length) {
       // remove old images

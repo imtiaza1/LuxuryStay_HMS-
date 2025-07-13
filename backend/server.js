@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import path from "path";
+import { fileURLToPath } from "url"; // if you're using ES Modules
 import connectDB from "./config/db.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -31,8 +32,10 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-// Serve images
-app.use("/uploads", express.static(path.join("uploads")));
+// Serve static uploads folder
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Default route
 app.get("/", (req, res) => {
