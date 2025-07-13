@@ -53,7 +53,12 @@ export const API_ENDPOINTS = {
   UPDATE_STAFF: "/api/admin/staff/update",
   //
   REFRESH: "/api/auth/refresh",
-  ROOMS: "/api/rooms",
+  //rooms
+  GET_ALL_ROOMS: "/api/rooms",
+  UPDATE_ROOM: "/api/rooms/update",
+  CREATE_ROOM: "/api/rooms/create",
+  DELETE_ROOM: "/api/rooms/delete",
+  //
   BOOKINGS: "/api/bookings",
   REVIEWS: "/api/reviews",
   TASKS: "/api/tasks",
