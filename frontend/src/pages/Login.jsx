@@ -50,7 +50,8 @@ const Login = () => {
       email: "housekeeping@luxurystay.com",
       password: "housekeeping123",
     },
-    { email: "guest@gmail.com", password: "imtiaz" },
+    { email: "guest@luxurystay.com", password: "guest123" },
+    { email: "manager@luxurystay.com", password: "manager123" },
   ];
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

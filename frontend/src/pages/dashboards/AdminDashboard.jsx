@@ -176,14 +176,14 @@ const AdminDashboard = () => {
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <h4 className="font-medium text-gray-900 dark:text-white">
-                        {booking.guestId.name}
+                        {booking.guest.name}
                       </h4>
                       <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                        ${booking.totalPrice}
+                        ${booking.billing.amount}
                       </span>
                     </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Room {booking.roomId.roomNumber}
+                      Room {booking.room.roomNumber}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       <span>{booking.checkInDate.slice(0, 10)}</span>
@@ -194,11 +194,11 @@ const AdminDashboard = () => {
                   <div className="ml-4">
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        booking.billingId.status
+                        booking.billing.status
                       )}`}
                     >
-                      {getStatusIcon(booking.billingId.status)}
-                      {booking.billingId.status.replace("_", " ")}
+                      {getStatusIcon(booking.billing.status)}
+                      {booking.billing.status.replace("_", " ")}
                     </span>
                   </div>
                 </div>
@@ -276,7 +276,7 @@ const AdminDashboard = () => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
-            onClick={() => navigate("/staff")}
+            onClick={() => navigate("/dashboard/admin/staff")}
             className="flex items-center justify-center space-x-2 p-4 bg-gold-50 dark:bg-gold-900/20 text-gold-600 dark:text-gold-400 rounded-lg hover:bg-gold-100 dark:hover:bg-gold-900/30 transition-colors"
           >
             <Users className="w-5 h-5" />
@@ -284,7 +284,7 @@ const AdminDashboard = () => {
           </button>
 
           <button
-            onClick={() => navigate("/rooms")}
+            onClick={() => navigate("/dashboard/admin/rooms")}
             className="flex items-center justify-center space-x-2 p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
           >
             <Hotel className="w-5 h-5" />
@@ -292,7 +292,7 @@ const AdminDashboard = () => {
           </button>
 
           <button
-            onClick={() => navigate("/bookings")}
+            onClick={() => navigate("/dashboard/admin/bookings")}
             className="flex items-center justify-center space-x-2 p-4 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
           >
             <Calendar className="w-5 h-5" />
@@ -300,7 +300,7 @@ const AdminDashboard = () => {
           </button>
 
           <button
-            onClick={() => navigate("/reviews")}
+            onClick={() => navigate("/dashboard/admin/reviews")}
             className="flex items-center justify-center space-x-2 p-4 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
           >
             <Star className="w-5 h-5" />

@@ -1,7 +1,7 @@
 import Review from "../models/reviewModel.js";
 import Room from "../models/roomModel.js";
 
-// CREATE review
+// CREATE review by user
 export const createReview = async (req, res) => {
   try {
     const { rating, comment } = req.body;
@@ -37,6 +37,20 @@ export const getRoomReviews = async (req, res) => {
   try {
     const reviews = await Review.find({ room: req.params.roomId })
       .populate("guest", "name email")
+      .sort("-createdAt");
+
+    res.status(200).json({ success: true, reviews });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// GET all reviews
+export const getAllReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find()
+      .populate("guest", "name email")
+      .populate("room", "roomNumber type")
       .sort("-createdAt");
 
     res.status(200).json({ success: true, reviews });

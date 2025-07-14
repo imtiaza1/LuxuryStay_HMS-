@@ -52,14 +52,7 @@ function App() {
                   <Route path="/register" element={<Register />} />
 
                   {/* Protected Dashboard Routes */}
-                  {/* <Route
-                    path="/dashboard/admin"
-                    element={
-                      <ProtectedRoute allowedRoles={["admin"]}>
-                        <AdminDashboard />
-                      </ProtectedRoute>
-                    }
-                  /> */}
+
                   <Route
                     path="/dashboard/admin/*"
                     element={

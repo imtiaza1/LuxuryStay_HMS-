@@ -310,6 +310,9 @@ const RoomPage = () => {
               Room Details
             </h3>
             <p className="text-sm dark:text-gray-300">
+              <strong>Room ID:</strong> {selectedRoom._id}
+            </p>
+            <p className="text-sm dark:text-gray-300">
               <strong>Room Number:</strong> {selectedRoom.roomNumber}
             </p>
             <p className="text-sm dark:text-gray-300">

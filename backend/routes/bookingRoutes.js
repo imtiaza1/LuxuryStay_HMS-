@@ -37,12 +37,17 @@ router.get(
 router.get("/total", totalBookings);
 //update bookings
 router.put(
-  "/:id",
+  "/update/:id",
   protect,
   restrictTo("admin", "manager", "receptionist"),
   updateBookingStatus
 );
 //delete bookings
-router.delete("/:id", protect, restrictTo("admin", "manager"), deleteBooking);
+router.delete(
+  "/delete/:id",
+  protect,
+  restrictTo("admin", "manager"),
+  deleteBooking
+);
 
 export default router;

@@ -41,7 +41,6 @@ const sendInvoiceEmail = async (toEmail, invoiceData) => {
 export const createCashBilling = async (req, res) => {
   try {
     const { bookingId, amount, notes } = req.body;
-
     const booking = await Booking.findById(bookingId).populate("guestId");
     if (!booking) return res.status(404).json({ message: "Booking not found" });
     const invoiceNumber = `INV-${Date.now()}`;

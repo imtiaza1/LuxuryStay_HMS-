@@ -13,7 +13,7 @@ const billingSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "paid", "failed"],
+      enum: ["pending", "confirmed", "failed"],
       default: "pending",
     },
     invoiceNumber: {

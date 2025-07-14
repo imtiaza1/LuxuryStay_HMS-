@@ -59,11 +59,6 @@ const DashboardLayout = ({ children, title }) => {
             icon: ClipboardList,
             path: "/dashboard/admin/housekeeping",
           },
-          {
-            name: "Settings",
-            icon: Settings,
-            path: "/dashboard/admin/settings",
-          },
         ];
       case ROLES.MANAGER:
         return [

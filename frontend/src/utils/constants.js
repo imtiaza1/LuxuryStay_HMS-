@@ -40,7 +40,7 @@ export const TASK_STATUS = {
   COMPLETED: "completed",
 };
 
-// API endpoints (placeholder for backend integration)
+// API endpoints  for backend integration
 export const API_ENDPOINTS = {
   LOGIN: "/api/auth/login",
   GUEST_REGISTER: "/api/guest/register",
@@ -58,9 +58,16 @@ export const API_ENDPOINTS = {
   UPDATE_ROOM: "/api/rooms/update",
   CREATE_ROOM: "/api/rooms/create",
   DELETE_ROOM: "/api/rooms/delete",
-  //
+  //bookings
   BOOKINGS: "/api/bookings",
+  CREATE_BOOKING: "/api/bookings/create",
+  UPDATE_BOOKING: "/api/bookings/update",
+  DELETE_BOOKING: "/api/bookings/delete",
+  // billings
+  BILLINGS: "/api/billings",
+  // reviews
   REVIEWS: "/api/reviews",
+  DELETE_REVIEW: "/api/reviews",
   TASKS: "/api/tasks",
   USERS: "/api/users",
   DASHBOARD: "/api/dashboard",
