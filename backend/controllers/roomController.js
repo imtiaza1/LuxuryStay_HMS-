@@ -5,12 +5,15 @@ import Room from "../models/roomModel.js";
 // CREATE
 export const createRoom = async (req, res) => {
   try {
-    const { roomNumber, type, price, status, features } = req.body;
+    const { roomNumber, title, type, price, status, features } = req.body;
     const images = req.files?.map((file) => file.filename) || [];
 
     // Validate fields
     if (!roomNumber || roomNumber.trim() === "") {
       return res.status(400).json({ message: "Room number cannot be empty." });
+    }
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "title number cannot be empty." });
     }
     if (!type || type.trim() === "") {
       return res.status(400).json({ message: "Type cannot be empty." });
@@ -67,6 +70,7 @@ export const createRoom = async (req, res) => {
 
     const newRoom = await Room.create({
       roomNumber,
+      title,
       type,
       price,
       status,
@@ -89,12 +93,21 @@ export const getRooms = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-// get all AVAILABLE_ROOMS
-export const availableRooms = async (req, res) => {
+// get all AVAILABLE_ROOMS_count
+export const availableRoomsCount = async (req, res) => {
   try {
     const rooms = await Room.find({ status: "available" });
     const totalRooms = rooms.length;
     res.status(200).json({ success: true, totalRooms });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+// get all AVAILABLE_ROOMS
+export const availableRooms = async (req, res) => {
+  try {
+    const rooms = await Room.find({ status: "available" });
+    res.status(200).json({ success: true, rooms });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -121,13 +134,16 @@ export const updateRoom = async (req, res) => {
       return res.status(404).json({ message: "Room not found." });
     }
 
-    const { roomNumber, type, price, status, features } = req.body;
+    const { roomNumber, title, type, price, status, features } = req.body;
 
     const newImages = req.files?.map((file) => file.filename);
 
     // Validate fields
     if (!roomNumber || roomNumber.trim() === "") {
       return res.status(400).json({ message: "Room number cannot be empty." });
+    }
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "title number cannot be empty." });
     }
     if (!type || type.trim() === "") {
       return res.status(400).json({ message: "Type cannot be empty." });
@@ -196,6 +212,7 @@ export const updateRoom = async (req, res) => {
 
     room.roomNumber = roomNumber || room.roomNumber;
     room.type = type || room.type;
+    room.title = title || room.title;
     room.price = price || room.price;
     room.status = status || room.status;
     room.features = features || room.features;
