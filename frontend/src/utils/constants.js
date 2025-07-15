@@ -54,6 +54,7 @@ export const API_ENDPOINTS = {
   //
   REFRESH: "/api/auth/refresh",
   //rooms
+  GET_ALL_AVAILABLE_ROOMS: "/api/rooms/available/rooms",
   GET_ALL_ROOMS: "/api/rooms",
   UPDATE_ROOM: "/api/rooms/update",
   CREATE_ROOM: "/api/rooms/create",
@@ -75,7 +76,7 @@ export const API_ENDPOINTS = {
   // dashborad
   TOTAL_REVENUE: "/api/billings/total-revenue",
   ACTIVE_GUESTS: "/api/guest/active-guests/count",
-  AVAILABLE_ROOMS: "/api/rooms/available/rooms",
+  AVAILABLE_ROOMS: "/api/rooms/available/rooms/count",
   RECENT_BOOKINGS: "/api/bookings/",
   HOUSEKEEPING_TASKS: "/api/tasks/",
   TOTAL_BOOKINGS: "/api/bookings/total",

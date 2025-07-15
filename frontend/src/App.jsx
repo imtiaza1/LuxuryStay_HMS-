@@ -61,7 +61,6 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
-
                   <Route
                     path="/dashboard/manager"
                     element={

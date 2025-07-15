@@ -1,134 +1,23 @@
-import {
-  Bath,
-  Car,
-  Coffee,
-  Star,
-  Tv,
-  Users,
-  Utensils,
-  Wifi,
-} from "lucide-react";
+import { Star, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../utils/api";
+import { API_ENDPOINTS } from "../utils/constants";
 
 const Rooms = () => {
   const [filter, setFilter] = useState("all");
   const [sortBy, setSortBy] = useState("price-low");
-  const [room, setRoom] = useState([]);
+  const [rooms, setRoom] = useState([]);
   const fetchRooms = async () => {
     try {
-      const response = await api.get("/api/rooms");
-      const result = response.data;
+      const response = await api.get(API_ENDPOINTS.GET_ALL_AVAILABLE_ROOMS);
+      const result = response.data.rooms;
       setRoom(result);
     } catch (error) {
       console.error("Error fetching rooms:", error);
       throw error;
     }
   };
-
-  const rooms = [
-    {
-      id: 1,
-      title: "Deluxe Ocean View",
-      type: "deluxe",
-      price: 299,
-      originalPrice: 349,
-      rating: 4.8,
-      reviews: 124,
-      image:
-        "https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=800",
-      amenities: ["Ocean View", "King Bed", "WiFi", "Mini Bar"],
-      maxGuests: 2,
-      size: "45 sqm",
-      features: [Wifi, Car, Utensils, Tv, Coffee, Bath],
-    },
-    {
-      id: 2,
-      title: "Presidential Suite",
-      type: "presidential",
-      price: 899,
-      originalPrice: 999,
-      rating: 4.9,
-      reviews: 89,
-      image:
-        "https://images.pexels.com/photos/271618/pexels-photo-271618.jpeg?auto=compress&cs=tinysrgb&w=800",
-      amenities: [
-        "Panoramic Views",
-        "Separate Living Area",
-        "Premium WiFi",
-        "Butler Service",
-      ],
-      maxGuests: 4,
-      size: "120 sqm",
-      features: [Wifi, Car, Utensils, Tv, Coffee, Bath],
-    },
-    {
-      id: 3,
-      title: "Standard Garden View",
-      type: "standard",
-      price: 199,
-      originalPrice: 249,
-      rating: 4.6,
-      reviews: 201,
-      image:
-        "https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=800",
-      amenities: ["Garden View", "Queen Bed", "WiFi", "Work Desk"],
-      maxGuests: 2,
-      size: "32 sqm",
-      features: [Wifi, Tv, Coffee, Bath],
-    },
-    {
-      id: 4,
-      title: "Executive Suite",
-      type: "suite",
-      price: 499,
-      originalPrice: 599,
-      rating: 4.7,
-      reviews: 156,
-      image:
-        "https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&cs=tinysrgb&w=800",
-      amenities: [
-        "City View",
-        "Separate Living Room",
-        "Premium WiFi",
-        "Concierge Access",
-      ],
-      maxGuests: 3,
-      size: "75 sqm",
-      features: [Wifi, Car, Utensils, Tv, Coffee, Bath],
-    },
-    {
-      id: 5,
-      title: "Luxury Ocean Suite",
-      type: "suite",
-      price: 699,
-      originalPrice: 799,
-      rating: 4.9,
-      reviews: 92,
-      image:
-        "https://images.pexels.com/photos/90317/pexels-photo-90317.jpeg?auto=compress&cs=tinysrgb&w=800",
-      amenities: ["Ocean View", "Jacuzzi", "Premium WiFi", "24/7 Room Service"],
-      maxGuests: 4,
-      size: "95 sqm",
-      features: [Wifi, Car, Utensils, Tv, Coffee, Bath],
-    },
-    {
-      id: 6,
-      title: "Comfort Double",
-      type: "standard",
-      price: 179,
-      originalPrice: 229,
-      rating: 4.5,
-      reviews: 178,
-      image:
-        "https://images.pexels.com/photos/237371/pexels-photo-237371.jpeg?auto=compress&cs=tinysrgb&w=800",
-      amenities: ["City View", "Double Bed", "WiFi", "Air Conditioning"],
-      maxGuests: 2,
-      size: "28 sqm",
-      features: [Wifi, Tv, Coffee],
-    },
-  ];
 
   const filteredRooms = rooms.filter((room) => {
     if (filter === "all") return true;
@@ -149,7 +38,6 @@ const Rooms = () => {
   });
   useEffect(() => {
     fetchRooms();
-    console.log(room);
   }, []);
 
   return (
@@ -233,17 +121,20 @@ const Rooms = () => {
 
         {/* Room Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {sortedRooms.map((room) => (
+          {rooms.map((room) => (
             <div
-              key={room.id}
+              key={room._id}
               className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
             >
               <div className="relative">
-                <img
-                  src={room.image}
-                  alt={room.title}
-                  className="w-full h-48 object-cover"
-                />
+                {room.images.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={`${api.defaults.baseURL}uploads/rooms/${img[0]}`} // 👈 this uses the axios baseURL
+                    alt={`Room ${idx}`}
+                    className="object-cover h-28 w-full"
+                  />
+                ))}
                 <div className="absolute top-4 left-4">
                   <span className="bg-gold-500 text-white px-3 py-1 rounded-full text-sm font-medium capitalize">
                     {room.type}
@@ -281,17 +172,17 @@ const Rooms = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {room.amenities.slice(0, 3).map((amenity, index) => (
+                  {room.features.slice(0, 3).map((feature, index) => (
                     <span
                       key={index}
                       className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-md text-xs"
                     >
-                      {amenity}
+                      {feature}
                     </span>
                   ))}
-                  {room.amenities.length > 3 && (
+                  {room.features.length > 3 && (
                     <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-md text-xs">
-                      +{room.amenities.length - 3} more
+                      +{room.features.length - 3} more
                     </span>
                   )}
                 </div>

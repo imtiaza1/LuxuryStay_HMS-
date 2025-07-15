@@ -47,6 +47,7 @@ const RoomPage = () => {
   const [formVisible, setFormVisible] = useState(false);
   const [form, setForm] = useState({
     roomNumber: "",
+    title: "",
     type: "",
     price: "",
     status: "",
@@ -64,7 +65,7 @@ const RoomPage = () => {
       const res = await api.get(API_ENDPOINTS.GET_ALL_ROOMS);
       setRooms(res.data.rooms);
     } catch (err) {
-      error("Failed to fetch rooms");
+      error(err.res.data.message);
     } finally {
       setLoading(false);
     }
@@ -81,6 +82,7 @@ const RoomPage = () => {
 
       const formData = new FormData();
       formData.append("roomNumber", form.roomNumber);
+      formData.append("title", form.title);
       formData.append("type", form.type);
       formData.append("price", form.price);
       formData.append("status", form.status);
@@ -101,6 +103,7 @@ const RoomPage = () => {
 
       setForm({
         roomNumber: "",
+        title: "",
         type: "",
         price: "",
         status: "",
@@ -120,6 +123,7 @@ const RoomPage = () => {
   const handleEdit = (room) => {
     setForm({
       roomNumber: room.roomNumber,
+      title: room.title,
       type: room.type,
       price: room.price,
       status: room.status,
@@ -174,6 +178,14 @@ const RoomPage = () => {
             placeholder="Room Number"
             value={form.roomNumber}
             onChange={(e) => setForm({ ...form, roomNumber: e.target.value })}
+            className="p-2 rounded-lg border dark:bg-gray-700 dark:text-white dark:border-gray-600"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Room Title"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
             className="p-2 rounded-lg border dark:bg-gray-700 dark:text-white dark:border-gray-600"
             required
           />
