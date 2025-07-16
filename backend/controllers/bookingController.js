@@ -42,6 +42,8 @@ export const createBooking = async (req, res) => {
       additionalServices,
       totalPrice,
     });
+    // Change the room status to "occupied" after booking
+    await Room.findByIdAndUpdate(roomId, { status: "occupied" }, { new: true });
 
     // ✅ Create billing
     const invoiceNumber = `INV-${Date.now()}`;
@@ -163,6 +165,14 @@ export const updateBookingStatus = async (req, res) => {
         booking.billingId.amount = totalPrice;
       }
       await booking.billingId.save();
+    }
+    // 🟡 If booking is cancelled, mark room as available
+    if (status === "cancelled") {
+      await Room.findByIdAndUpdate(
+        roomId,
+        { status: "available" },
+        { new: true }
+      );
     }
 
     res.status(200).json({
