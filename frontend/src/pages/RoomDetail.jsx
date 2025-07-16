@@ -1,397 +1,442 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Star, Users, Wifi, Car, Utensils, Tv, Coffee, Bath, Calendar, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useToast } from '../contexts/ToastContext';
+import {
+  ArrowLeft,
+  Bath,
+  Bed,
+  Calendar,
+  Car,
+  Coffee,
+  Star,
+  Tv,
+  Users,
+  Utensils,
+  Wifi,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
+import api from "../utils/api";
+import { API_ENDPOINTS } from "../utils/constants";
+
+const ICONS = { Wifi, Car, Utensils, Tv, Coffee, Bath };
 
 const RoomDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { success, error } = useToast();
+
+  const [room, setRoom] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [loadingRoom, setLoadingRoom] = useState(true);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+  const [bookingLoading, setBookingLoading] = useState(false);
+
   const [currentImage, setCurrentImage] = useState(0);
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
-  const [guests, setGuests] = useState('2');
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [guests, setGuests] = useState("2");
+  const [additionalServices, setAdditionalServices] = useState([]);
 
-  // Mock room data (in real app, this would come from API)
-  const room = {
-    id: 1,
-    title: "Deluxe Ocean View",
-    type: "deluxe",
-    price: 299,
-    originalPrice: 349,
-    rating: 4.8,
-    reviews: 124,
-    images: [
-      "https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      "https://images.pexels.com/photos/271618/pexels-photo-271618.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      "https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      "https://images.pexels.com/photos/237371/pexels-photo-237371.jpeg?auto=compress&cs=tinysrgb&w=1200"
-    ],
-    amenities: ["Ocean View", "King Bed", "WiFi", "Mini Bar", "Room Service", "Air Conditioning"],
-    maxGuests: 2,
-    size: "45 sqm",
-    bedType: "King Size Bed",
-    view: "Ocean View",
-    features: [
-      { icon: Wifi, label: "High-Speed WiFi" },
-      { icon: Car, label: "Valet Parking" },
-      { icon: Utensils, label: "Room Service" },
-      { icon: Tv, label: "Smart TV" },
-      { icon: Coffee, label: "Coffee Machine" },
-      { icon: Bath, label: "Luxury Bathroom" }
-    ],
-    description: `Experience luxury at its finest in our Deluxe Ocean View room. This beautifully appointed accommodation features a king-size bed, stunning ocean views, and premium amenities to ensure your stay is nothing short of extraordinary.
+  const availableServices = ["Room Service", "Laundry", "Wake-up Call"];
+  const dropdownRef = useRef(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-    The room includes a private balcony with breathtaking ocean views, a spacious marble bathroom with premium toiletries, and a comfortable seating area perfect for relaxation. Guests can enjoy 24/7 room service, high-speed WiFi, and access to all hotel amenities.
+  useEffect(() => {
+    async function fetchRoom() {
+      try {
+        const { data } = await api.get(
+          `${API_ENDPOINTS.GET_SINGLE_ROOM}/${id}`
+        );
+        setRoom(data.room);
+      } catch {
+        error("Failed to load room details");
+        navigate("/rooms");
+      } finally {
+        setLoadingRoom(false);
+      }
+    }
 
-    Whether you're here for business or leisure, our Deluxe Ocean View room provides the perfect sanctuary for a memorable stay at LuxuryStay HMS.`
+    async function fetchReviews() {
+      try {
+        const { data } = await api.get(
+          `${API_ENDPOINTS.GET_REVIEWS_BY_ROOM}/${id}`
+        );
+        setReviews(data.reviews);
+      } catch {
+        error("Failed to load reviews");
+      } finally {
+        setLoadingReviews(false);
+      }
+    }
+
+    fetchRoom();
+    fetchReviews();
+  }, [id, error, navigate]);
+
+  const handleBooking = async () => {
+    if (!user) return error("Login required"), navigate("/login");
+    if (!checkIn || !checkOut)
+      return error("Select check-in and check-out dates");
+
+    const ci = new Date(checkIn),
+      co = new Date(checkOut);
+    const nights = Math.ceil((co - ci) / (1000 * 60 * 60 * 24));
+    if (nights <= 0) return error("Check-out must be after check-in");
+
+    try {
+      setBookingLoading(true);
+      await api.post(API_ENDPOINTS.CREATE_BOOKING, {
+        roomId: room._id,
+        guestId: user.id,
+        checkInDate: ci,
+        checkOutDate: co,
+        totalPrice: nights * room.price,
+        additionalServices,
+      });
+      success(
+        `Booked ${nights} night(s) successfully. Please confirm to complete the booking.`
+      );
+      navigate(`/dashboard/${user.role}`);
+    } catch (err) {
+      error(err.response?.data?.message || "Booking failed");
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
-  const reviews = [
-    {
-      id: 1,
-      author: "Sarah Johnson",
-      rating: 5,
-      date: "2024-01-10",
-      comment: "Absolutely stunning room with an incredible ocean view! The bed was incredibly comfortable and the bathroom was luxurious. Staff was very attentive.",
-      helpful: 12
-    },
-    {
-      id: 2,
-      author: "Michael Chen",
-      rating: 4,
-      date: "2024-01-05",
-      comment: "Great room with excellent amenities. The view was spectacular and the room was very clean. Only minor issue was the WiFi was a bit slow.",
-      helpful: 8
-    },
-    {
-      id: 3,
-      author: "Emily Rodriguez",
-      rating: 5,
-      date: "2023-12-28",
-      comment: "Perfect for our anniversary stay. The room was romantic and the service was exceptional. The balcony was our favorite spot for morning coffee.",
-      helpful: 15
-    }
-  ];
-
-  const handleBooking = () => {
-    if (!user) {
-      error('Please login to make a booking');
-      navigate('/login');
-      return;
-    }
-
-    if (!checkIn || !checkOut) {
-      error('Please select check-in and check-out dates');
-      return;
-    }
-
-    // Calculate nights
-    const checkInDate = new Date(checkIn);
-    const checkOutDate = new Date(checkOut);
-    const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
-
-    if (nights <= 0) {
-      error('Check-out date must be after check-in date');
-      return;
-    }
-
-    // Mock booking logic
-    success(`Booking confirmed for ${nights} nights! Total: $${room.price * nights}`);
-    
-    // In real app, this would make an API call to create the booking
-    // TODO: Implement actual booking API call
-  };
-
-  if (!room) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Room Not Found</h2>
-          <button
-            onClick={() => navigate('/rooms')}
-            className="text-gold-600 hover:text-gold-500"
-          >
-            Back to Rooms
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (loadingRoom) return <LoadingSpinner size={48} center />;
+  if (!room) return <p className="text-center">Room not found.</p>;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate('/rooms')}
-          className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back to Rooms</span>
-        </button>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 lg:px-8">
+      <button
+        onClick={() => navigate("/rooms")}
+        className="flex items-center mb-6 text-gray-600 hover:text-gray-900 dark:text-gray-300"
+      >
+        <ArrowLeft className="w-5 h-5 mr-2" /> Back to Rooms
+      </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Image Gallery */}
-          <div className="lg:col-span-2">
-            <div className="space-y-4">
-              <div className="relative">
-                <img
-                  src={room.images[currentImage]}
-                  alt={room.title}
-                  className="w-full h-96 object-cover rounded-lg"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-gold-500 text-white px-3 py-1 rounded-full text-sm font-medium capitalize">
-                    {room.type}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-4 gap-2">
-                {room.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImage(index)}
-                    className={`relative overflow-hidden rounded-lg ${
-                      currentImage === index ? 'ring-2 ring-gold-500' : ''
-                    }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`Room view ${index + 1}`}
-                      className="w-full h-20 object-cover hover:opacity-80 transition-opacity"
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Booking Card */}
-          <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sticky top-8">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  {room.originalPrice > room.price && (
-                    <span className="text-lg text-gray-500 dark:text-gray-400 line-through mr-2">
-                      ${room.originalPrice}
-                    </span>
-                  )}
-                  <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                    ${room.price}
-                  </span>
-                  <span className="text-gray-500 dark:text-gray-400 ml-1">/night</span>
-                </div>
-                {room.originalPrice > room.price && (
-                  <span className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 px-2 py-1 rounded-full text-sm font-medium">
-                    Save ${room.originalPrice - room.price}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center mb-6">
-                <div className="flex items-center">
-                  <Star className="w-5 h-5 fill-gold-400 text-gold-400" />
-                  <span className="ml-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {room.rating}
-                  </span>
-                </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                  ({room.reviews} reviews)
-                </span>
-              </div>
-
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Check-in
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                    <input
-                      type="date"
-                      value={checkIn}
-                      onChange={(e) => setCheckIn(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Check-out
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                    <input
-                      type="date"
-                      value={checkOut}
-                      onChange={(e) => setCheckOut(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Guests
-                  </label>
-                  <div className="relative">
-                    <Users className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                    <select
-                      value={guests}
-                      onChange={(e) => setGuests(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                    >
-                      <option value="1">1 Guest</option>
-                      <option value="2">2 Guests</option>
-                      {room.maxGuests > 2 && <option value="3">3 Guests</option>}
-                      {room.maxGuests > 3 && <option value="4">4 Guests</option>}
-                    </select>
-                  </div>
-                </div>
-              </div>
-
+      <div className="lg:grid lg:grid-cols-3 lg:gap-8">
+        {/* Gallery */}
+        <div className="lg:col-span-2 mb-6 lg:mb-0">
+          <img
+            src={`${api.defaults.baseURL}uploads/rooms/${room.images[currentImage]}`}
+            alt=""
+            className="w-full h-96 object-cover rounded-lg"
+          />
+          <div className="grid grid-cols-4 gap-2 mt-2">
+            {room.images.map((img, i) => (
               <button
-                onClick={handleBooking}
-                className="w-full bg-gold-600 hover:bg-gold-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                key={i}
+                onClick={() => setCurrentImage(i)}
+                className={
+                  i === currentImage
+                    ? "ring-2 ring-gold-500 rounded-lg"
+                    : "rounded-lg"
+                }
               >
-                Book Now
+                <img
+                  src={`${api.defaults.baseURL}uploads/rooms/${img}`}
+                  alt=""
+                  className="w-full h-20 object-cover"
+                />
               </button>
-
-              <div className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                Free cancellation up to 24 hours before check-in
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Room Details */}
-        <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            {/* Overview */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                {room.title}
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="flex items-center space-x-2">
-                  <Users className="w-5 h-5 text-gray-500" />
-                  <span className="text-gray-700 dark:text-gray-300">Up to {room.maxGuests} guests</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="w-5 h-5 text-gray-500">📐</span>
-                  <span className="text-gray-700 dark:text-gray-300">{room.size}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="w-5 h-5 text-gray-500">🛏️</span>
-                  <span className="text-gray-700 dark:text-gray-300">{room.bedType}</span>
-                </div>
-              </div>
-
-              <div className="prose dark:prose-invert max-w-none">
-                <p className="text-gray-600 dark:text-gray-400 whitespace-pre-line">
-                  {room.description}
-                </p>
-              </div>
+        {/* Booking */}
+        <div className="sticky top-8">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+            <div className="mb-4">
+              {room.originalPrice > room.price && (
+                <span className="line-through text-gray-500 mr-2">
+                  ${room.originalPrice}
+                </span>
+              )}
+              <span className="text-3xl font-bold">${room.price}</span>
+              <span className="ml-1 text-gray-500">/night</span>
+            </div>
+            <div className="flex items-center mb-4">
+              <Star className="w-5 h-5 fill-gold-400" />
+              <span className="ml-1 text-sm text-gray-700 dark:text-gray-300">
+                {room.rating} ({reviews.length})
+              </span>
             </div>
 
-            {/* Amenities */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Room Amenities
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {room.features.map((feature, index) => {
-                  const Icon = feature.icon;
-                  return (
-                    <div key={index} className="flex items-center space-x-3">
-                      <Icon className="w-5 h-5 text-gold-500" />
-                      <span className="text-gray-700 dark:text-gray-300">{feature.label}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            {/* Form Fields */}
+            <div className="space-y-4 mb-6">
+              {/* Dates */}
+              {["checkIn", "checkOut"].map((field) => (
+                <div key={field}>
+                  <label className="block mb-1 text-sm">
+                    {field === "checkIn" ? "Check-in" : "Check-out"}
+                  </label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-3 w-5 text-gray-400" />
+                    <input
+                      type="date"
+                      value={field === "checkIn" ? checkIn : checkOut}
+                      onChange={(e) =>
+                        field === "checkIn"
+                          ? setCheckIn(e.target.value)
+                          : setCheckOut(e.target.value)
+                      }
+                      className="pl-10 pr-4 py-3 w-full rounded-lg border dark:bg-gray-800 dark:text-white"
+                    />
+                  </div>
+                </div>
+              ))}
 
-            {/* Reviews */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Guest Reviews
-              </h3>
-              <div className="space-y-6">
-                {reviews.map((review) => (
-                  <div key={review.id} className="border-b border-gray-200 dark:border-gray-700 pb-6 last:border-b-0">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {review.author}
+              {/* Guests */}
+              <div>
+                <label className="block mb-1 text-sm">Guests</label>
+                <div className="relative">
+                  <Users className="absolute left-3 top-3 w-5 text-gray-400" />
+                  <select
+                    value={guests}
+                    onChange={(e) => setGuests(e.target.value)}
+                    className="pl-10 pr-4 py-3 w-full rounded-lg border dark:bg-gray-800 dark:text-white"
+                  >
+                    {Array.from({ length: 2 }, (_, i) => (
+                      <option key={i} value={i + 1}>
+                        {i + 1} Guest{i > 0 && "s"}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Additional Services */}
+              {/* <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">
+                  Additional Services Optional
+                </label>
+                <div className="space-y-2">
+                  {availableServices.map((service, idx) => (
+                    <label
+                      key={idx}
+                      className="flex items-center space-x-2 text-gray-700 dark:text-gray-300"
+                    >
+                      <input
+                        type="checkbox"
+                        value={service}
+                        checked={additionalServices.includes(service)}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          if (checked) {
+                            setAdditionalServices([
+                              ...additionalServices,
+                              service,
+                            ]);
+                          } else {
+                            setAdditionalServices(
+                              additionalServices.filter((s) => s !== service)
+                            );
+                          }
+                        }}
+                        className="form-checkbox h-4 w-4 text-gold-600 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:checked:bg-gold-600"
+                      />
+                      <span>{service}</span>
+                    </label>
+                  ))}
+                </div>
+              </div> */}
+              {/* Additional Services Dropdown with Checkboxes */}
+              <div className="relative" ref={dropdownRef}>
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">
+                  Additional Services (Optional)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="w-full py-2 px-4 border rounded-lg bg-white dark:bg-gray-800 text-left dark:text-white"
+                >
+                  {additionalServices.length > 0
+                    ? additionalServices.join(", ")
+                    : "Select services"}
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute z-10 mt-2 w-full bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg shadow-md max-h-60 overflow-auto">
+                    {availableServices.map((service, idx) => (
+                      <label
+                        key={idx}
+                        className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          value={service}
+                          checked={additionalServices.includes(service)}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            if (checked) {
+                              setAdditionalServices([
+                                ...additionalServices,
+                                service,
+                              ]);
+                            } else {
+                              setAdditionalServices(
+                                additionalServices.filter((s) => s !== service)
+                              );
+                            }
+                          }}
+                          className="form-checkbox h-4 w-4 text-gold-600 border-gray-300 dark:border-gray-600 dark:bg-gray-800 mr-3"
+                        />
+                        <span className="text-gray-700 dark:text-gray-300">
+                          {service}
                         </span>
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Book Button */}
+            <button
+              onClick={handleBooking}
+              disabled={bookingLoading}
+              className="w-full py-3 font-semibold text-white rounded-lg bg-gold-600 hover:bg-gold-700"
+            >
+              {bookingLoading ? <LoadingSpinner size="sm" /> : "Book Now"}
+            </button>
+
+            <p className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
+              Free cancellation up to 24h before check-in
+            </p>
+          </div>
+        </div>
+      </div>
+      {/* Details */}
+      <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Section (2 columns) */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Description */}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg">
+            <h2 className="text-2xl font-bold mb-4">{room.title}</h2>
+            <div className="flex items-center space-x-4 mb-4">
+              <Users className="w-5 h-5 text-gray-500" />
+              <span>Guests up to 2</span>
+
+              <Tv className="w-5 h-5 text-gray-500" />
+              <span>Room size: 45 cm</span>
+
+              <Bed className="w-5 h-5 text-gray-500" />
+              <span>King Size Bed</span>
+            </div>
+
+            <p className="whitespace-pre-line text-gray-600 dark:text-gray-400">
+              Experience a comfortable stay in this modern and spacious room.
+              Equipped with all the basic amenities including WiFi, air
+              conditioning, and a king-sized bed. Ideal for up to two guests.
+            </p>
+          </div>
+
+          {/* Amenities */}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-xl font-bold mb-4">Amenities</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {room.features[0]?.split(",").map((f, i) => {
+                const Icon = ICONS[f.trim()] || Wifi;
+                return (
+                  <div key={i} className="flex items-center space-x-3">
+                    <Icon className="w-5 h-5 text-gold-500" />
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {f.trim()}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Reviews */}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-xl font-bold mb-4">Guest Reviews</h3>
+            {loadingReviews ? (
+              <LoadingSpinner size={24} center />
+            ) : reviews.length === 0 ? (
+              <p className="text-gray-500">No reviews yet.</p>
+            ) : (
+              <div className="space-y-6">
+                {reviews.map((rv) => (
+                  <div key={rv._id} className="border-b pb-6 last:border-none">
+                    <div className="flex justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-medium">{rv.author}</span>
+                        <div className="flex">
+                          {Array.from({ length: 5 }, (_, i) => (
                             <Star
                               key={i}
                               className={`w-4 h-4 ${
-                                i < review.rating
-                                  ? 'fill-gold-400 text-gold-400'
-                                  : 'text-gray-300'
+                                i < rv.rating
+                                  ? "fill-gold-400 text-gold-400"
+                                  : "text-gray-300"
                               }`}
                             />
                           ))}
                         </div>
                       </div>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {review.date}
+                      <span className="text-sm text-gray-500">
+                        {rv.date.slice(0, 10)}
                       </span>
                     </div>
-                    <p className="text-gray-600 dark:text-gray-400 mb-2">
-                      {review.comment}
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {rv.comment}
                     </p>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {review.helpful} people found this helpful
-                    </div>
                   </div>
                 ))}
               </div>
-            </div>
+            )}
           </div>
+        </div>
 
-          {/* Additional Info */}
-          <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                Additional Information
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white mb-2">Check-in / Check-out</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Check-in: 3:00 PM<br />
-                    Check-out: 11:00 AM
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white mb-2">Cancellation Policy</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Free cancellation up to 24 hours before check-in. After that, the first night will be charged.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white mb-2">Hotel Policies</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    • No smoking<br />
-                    • No pets allowed<br />
-                    • Quiet hours: 10 PM - 6 AM
-                  </p>
-                </div>
+        {/* Right Section (Additional Info) */}
+        <div className="space-y-8">
+          {/* Additional Information */}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-bold mb-4">Additional Information</h3>
+            <div className="space-y-6 text-sm text-gray-600 dark:text-gray-400">
+              <div className="space-y-2">
+                <p className="font-medium text-gray-900 dark:text-white">
+                  Check-in / Check-out
+                </p>
+                <p>Check-in: 3:00 PM</p>
+                <p>Check-out: 11:00 AM</p>
+              </div>
+              <div className="space-y-2">
+                <p className="font-medium text-gray-900 dark:text-white">
+                  Cancellation Policy
+                </p>
+                <p>
+                  Free cancellation up to 24 hours before check-in. After that,
+                  the first night will be charged.
+                </p>
               </div>
             </div>
           </div>
         </div>
+      </div>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg">
+        <h3 className="text-lg font-bold mb-2">Hotel Policies</h3>
+        <p className="text-sm text-gray-600">
+          • No smoking
+          <br />
+          • No pets allowed
+          <br />• Quiet hours: 10PM–6AM
+        </p>
       </div>
     </div>
   );

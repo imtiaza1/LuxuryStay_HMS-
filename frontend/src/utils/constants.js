@@ -59,6 +59,7 @@ export const API_ENDPOINTS = {
   UPDATE_ROOM: "/api/rooms/update",
   CREATE_ROOM: "/api/rooms/create",
   DELETE_ROOM: "/api/rooms/delete",
+  GET_SINGLE_ROOM: "/api/rooms",
   //bookings
   BOOKINGS: "/api/bookings",
   CREATE_BOOKING: "/api/bookings/create",
@@ -69,6 +70,8 @@ export const API_ENDPOINTS = {
   // reviews
   REVIEWS: "/api/reviews",
   DELETE_REVIEW: "/api/reviews",
+  GET_REVIEWS_BY_ROOM: "/api/reviews",
+  //
   TASKS: "/api/tasks",
   USERS: "/api/users",
   DASHBOARD: "/api/dashboard",

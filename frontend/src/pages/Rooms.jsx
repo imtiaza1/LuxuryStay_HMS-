@@ -8,6 +8,7 @@ const Rooms = () => {
   const [filter, setFilter] = useState("all");
   const [sortBy, setSortBy] = useState("price-low");
   const [rooms, setRoom] = useState([]);
+
   const fetchRooms = async () => {
     try {
       const response = await api.get(API_ENDPOINTS.GET_ALL_AVAILABLE_ROOMS);
@@ -15,7 +16,6 @@ const Rooms = () => {
       setRoom(result);
     } catch (error) {
       console.error("Error fetching rooms:", error);
-      throw error;
     }
   };
 
@@ -36,6 +36,7 @@ const Rooms = () => {
         return 0;
     }
   });
+
   useEffect(() => {
     fetchRooms();
   }, []);
@@ -56,56 +57,19 @@ const Rooms = () => {
         {/* Filters */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                filter === "all"
-                  ? "bg-gold-500 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              All Rooms
-            </button>
-            <button
-              onClick={() => setFilter("standard")}
-              className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                filter === "standard"
-                  ? "bg-gold-500 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              Standard
-            </button>
-            <button
-              onClick={() => setFilter("deluxe")}
-              className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                filter === "deluxe"
-                  ? "bg-gold-500 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              Deluxe
-            </button>
-            <button
-              onClick={() => setFilter("suite")}
-              className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                filter === "suite"
-                  ? "bg-gold-500 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              Suite
-            </button>
-            <button
-              onClick={() => setFilter("presidential")}
-              className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                filter === "presidential"
-                  ? "bg-gold-500 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              Presidential
-            </button>
+            {["all", "single", "deluxe", "suite", "double"].map((type) => (
+              <button
+                key={type}
+                onClick={() => setFilter(type)}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  filter === type
+                    ? "bg-gold-500 text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </button>
+            ))}
           </div>
 
           <select
@@ -121,20 +85,17 @@ const Rooms = () => {
 
         {/* Room Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {rooms.map((room) => (
+          {sortedRooms.map((room) => (
             <div
               key={room._id}
               className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
             >
               <div className="relative">
-                {room.images.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={`${api.defaults.baseURL}uploads/rooms/${img[0]}`} // 👈 this uses the axios baseURL
-                    alt={`Room ${idx}`}
-                    className="object-cover h-28 w-full"
-                  />
-                ))}
+                <img
+                  src={`${api.defaults.baseURL}uploads/rooms/${room.images?.[0]}`}
+                  alt="Room"
+                  className="object-cover h-28 w-full"
+                />
                 <div className="absolute top-4 left-4">
                   <span className="bg-gold-500 text-white px-3 py-1 rounded-full text-sm font-medium capitalize">
                     {room.type}
@@ -162,27 +123,33 @@ const Rooms = () => {
                     </span>
                   </div>
                   <div className="ml-auto flex items-center text-sm text-gray-500 dark:text-gray-400">
-                    <Users className="w-4 h-4 mr-1" />
-                    {room.maxGuests} guests
+                    <Users className="w-4 h-4 mr-1" />2 guests
                   </div>
                 </div>
 
-                <div className="flex items-center mb-4 text-sm text-gray-500 dark:text-gray-400">
-                  <span>{room.size}</span>
-                </div>
-
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {room.features.slice(0, 3).map((feature, index) => (
+                  {room.features?.[0]
+                    ?.split(",")
+                    .slice(0, 3)
+                    .map((feature, index) => (
+                      <span
+                        key={index}
+                        className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-md text-xs"
+                      >
+                        {feature.trim()}
+                      </span>
+                    ))}
+
+                  {room.features?.[0]?.split(",").length > 3 && (
                     <span
-                      key={index}
-                      className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-md text-xs"
+                      title={room.features[0]
+                        .split(",")
+                        .slice(3)
+                        .map((f) => f.trim())
+                        .join(", ")}
+                      className="bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-md text-xs cursor-pointer"
                     >
-                      {feature}
-                    </span>
-                  ))}
-                  {room.features.length > 3 && (
-                    <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-md text-xs">
-                      +{room.features.length - 3} more
+                      +{room.features[0].split(",").length - 3} more
                     </span>
                   )}
                 </div>
@@ -202,7 +169,7 @@ const Rooms = () => {
                     </span>
                   </div>
                   <Link
-                    to={`/room/${room.id}`}
+                    to={`/room/${room._id}`}
                     className="bg-gold-500 hover:bg-gold-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                   >
                     View Details

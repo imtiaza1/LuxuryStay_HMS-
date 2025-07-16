@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, Sun, Moon, User, LogOut, Settings } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
-import { DASHBOARD_ROUTES } from '../utils/constants';
+import { LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
+import { DASHBOARD_ROUTES } from "../utils/constants";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,12 +13,12 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const publicNavItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Rooms', path: '/rooms' },
-    { name: 'About', path: '/about' },
-    { name: 'Services', path: '/services' },
-    { name: 'Amenities', path: '/amenities' },
-    { name: 'Contact', path: '/contact' }
+    { name: "Home", path: "/" },
+    { name: "Rooms", path: "/rooms" },
+    { name: "About", path: "/about" },
+    { name: "Services", path: "/services" },
+    { name: "Amenities", path: "/amenities" },
+    { name: "Contact", path: "/contact" },
   ];
 
   const handleLogout = () => {
@@ -66,7 +66,11 @@ const Navbar = () => {
               onClick={toggleTheme}
               className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {darkMode ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
             </button>
 
             {/* User Menu */}
@@ -77,14 +81,15 @@ const Navbar = () => {
                   className="flex items-center space-x-2 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   <User className="w-5 h-5" />
-                  <span className="hidden md:inline">{user.firstName}</span>
+                  <span className="hidden md:inline">{user.name}</span>
                 </button>
 
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50">
                     <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border-b dark:border-gray-700">
-                      <p className="font-medium">{user.firstName} {user.lastName}</p>
-                      <p className="text-gray-500 dark:text-gray-400 capitalize">{user.role}</p>
+                      <p className="text-gray-500 dark:text-gray-400 capitalize">
+                        {user.role}
+                      </p>
                     </div>
                     <button
                       onClick={goToDashboard}
@@ -125,7 +130,11 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
-              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
             </button>
           </div>
         </div>
