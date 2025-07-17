@@ -9,8 +9,8 @@ import BookingsPage from "../dashboards/pages/BookingsPage";
 import HousekeepingPage from "../dashboards/pages/HousekeepingPage";
 import ReviewsPage from "../dashboards/pages/ReviewsPage";
 import RoomsPage from "../dashboards/pages/RoomsPage";
-import SettingsPage from "../dashboards/pages/SettingsPage";
 import StaffPage from "../dashboards/pages/StaffPage";
+import TaskAssignmentPage from "../dashboards/pages/TaskAssignmentPage";
 
 const AdminRoutes = () => {
   return (
@@ -23,7 +23,7 @@ const AdminRoutes = () => {
         <Route path="reviews" element={<ReviewsPage />} />
         <Route path="billing" element={<BillingPage />} />
         <Route path="housekeeping" element={<HousekeepingPage />} />
-        <Route path="settings" element={<SettingsPage />} />
+        <Route path="taskassign" element={<TaskAssignmentPage />} />
       </Routes>
     </DashboardLayout>
   );
