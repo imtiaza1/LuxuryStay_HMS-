@@ -73,6 +73,7 @@ export const API_ENDPOINTS = {
   GET_REVIEWS_BY_ROOM: "/api/reviews",
   // TASK
   GET_ALL_TASK: "/api/tasks",
+  GET_ALL_HOUSEKEEPING: "/api/housekeeping",
 
   USERS: "/api/users",
   DASHBOARD: "/api/dashboard",
