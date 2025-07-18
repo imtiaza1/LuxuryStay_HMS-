@@ -71,8 +71,9 @@ export const API_ENDPOINTS = {
   REVIEWS: "/api/reviews",
   DELETE_REVIEW: "/api/reviews",
   GET_REVIEWS_BY_ROOM: "/api/reviews",
-  //
-  TASKS: "/api/tasks",
+  // TASK
+  GET_ALL_TASK: "/api/tasks",
+
   USERS: "/api/users",
   DASHBOARD: "/api/dashboard",
   LOGOUT: "/api/auth/logout",
