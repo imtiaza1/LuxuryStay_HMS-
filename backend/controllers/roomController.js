@@ -112,6 +112,17 @@ export const availableRooms = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// get all others_ROOMS
+export const othersRooms = async (req, res) => {
+  try {
+    const rooms = await Room.find({
+      status: { $in: ["maintenance", "cleaning", "inspection"] },
+    });
+    res.status(200).json({ success: true, rooms });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // READ ONE
 export const getRoomById = async (req, res) => {

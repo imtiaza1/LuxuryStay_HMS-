@@ -62,7 +62,7 @@ export const getTaskById = async (req, res) => {
   }
 };
 
-// UPDATE
+// UPDATE taks
 export const updateTask = async (req, res) => {
   try {
     const { title, description, assignedToEmail, status, priority, type } =
@@ -91,6 +91,29 @@ export const updateTask = async (req, res) => {
     res.status(200).json({ success: true, task: updated });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+// Update status only
+export const statusUpdate = async (req, res) => {
+  const { status } = req.body;
+
+  try {
+    // Check if task exists
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Task not found" });
+    }
+    // Update status
+    if (status) {
+      task.status = status;
+    }
+
+    const updatedTask = await task.save();
+    res.status(200).json({ success: true, task: updatedTask });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

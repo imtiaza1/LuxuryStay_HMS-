@@ -6,6 +6,7 @@ import {
   deleteRoom,
   getRoomById,
   getRooms,
+  othersRooms,
   updateRoom,
 } from "../controllers/roomController.js";
 import { protect } from "../middlewares/auth.js";
@@ -32,6 +33,7 @@ router.delete("/delete/:id", protect, restrictTo("admin"), deleteRoom);
 router.get("/", getRooms);
 router.get("/available/rooms/count", availableRoomsCount);
 router.get("/available/rooms", availableRooms);
+router.get("/available/rooms/other", othersRooms);
 router.get("/:id", getRoomById);
 
 export default router;
