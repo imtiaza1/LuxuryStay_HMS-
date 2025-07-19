@@ -60,6 +60,10 @@ export const API_ENDPOINTS = {
   CREATE_ROOM: "/api/rooms/create",
   DELETE_ROOM: "/api/rooms/delete",
   GET_SINGLE_ROOM: "/api/rooms",
+  OTHERS_ROOMS: "/api/rooms/available/rooms/other",
+  UPDATE_TASKS: "/api/tasks/update",
+  DELETE_TASKS: "/api/tasks",
+  UPDATE_STATUS: "/api/tasks",
   //bookings
   BOOKINGS: "/api/bookings",
   CREATE_BOOKING: "/api/bookings/create",
@@ -74,6 +78,7 @@ export const API_ENDPOINTS = {
   // TASK
   GET_ALL_TASK: "/api/tasks",
   GET_ALL_HOUSEKEEPING: "/api/housekeeping",
+  CREATE_TASK: "api/tasks/create",
 
   USERS: "/api/users",
   DASHBOARD: "/api/dashboard",

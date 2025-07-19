@@ -1,5 +1,15 @@
-import axios from "axios";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  Briefcase,
+  CheckCircle,
+  Circle,
+  ClipboardList,
+  Clock,
+  Pencil,
+  Plus,
+  Trash2,
+  Wrench,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import { useToast } from "../../../contexts/ToastContext";
@@ -14,6 +24,7 @@ const TaskPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
   const { success, error } = useToast();
+  const [room, setRoom] = useState([]);
 
   const [filters, setFilters] = useState({ status: "", type: "" });
 
@@ -25,7 +36,17 @@ const TaskPage = () => {
     priority: "low",
     type: "cleaning",
   });
-
+  const fetchRooms = async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get(API_ENDPOINTS.OTHERS_ROOMS);
+      setRoom(data.rooms);
+    } catch {
+      error("Failed to fetch rooms.");
+    } finally {
+      setLoading(false);
+    }
+  };
   const fetchTasks = async () => {
     try {
       setLoading(true);
@@ -58,17 +79,17 @@ const TaskPage = () => {
 
   const updateTaskStatus = async (taskId, status) => {
     try {
-      await axios.patch(`/api/tasks/${taskId}`, { status });
+      await api.put(`${API_ENDPOINTS.UPDATE_STATUS}/${taskId}`, { status });
       success("Task updated");
       fetchTasks();
-    } catch {
-      error("Failed to update task");
+    } catch (err) {
+      error(err.message);
     }
   };
 
   const deleteTask = async (id) => {
     try {
-      await api.delete(`/api/tasks/${id}`);
+      await api.delete(`${API_ENDPOINTS.DELETE_TASKS}/${id}`);
       success("Task deleted");
       fetchTasks();
     } catch {
@@ -79,10 +100,13 @@ const TaskPage = () => {
   const handleCreateOrUpdate = async () => {
     try {
       if (isEditing && currentTask) {
-        await api.put(`/api/tasks/${currentTask._id}`, formData);
+        await api.put(
+          `${API_ENDPOINTS.UPDATE_TASKS}/${currentTask._id}`,
+          formData
+        );
         success("Task updated");
       } else {
-        await api.post(`/api/tasks`, formData);
+        await api.post(API_ENDPOINTS.CREATE_TASK, formData);
         success("Task created");
       }
       setIsModalOpen(false);
@@ -123,7 +147,63 @@ const TaskPage = () => {
   useEffect(() => {
     fetchTasks();
     fetchStaff();
+    fetchRooms();
   }, [filters]);
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "confirmed":
+      case "completed":
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      case "checked_in":
+      case "in_progress":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "confirmed":
+      case "completed":
+      case "paid":
+        return <CheckCircle className="w-4 h-4" />;
+      case "checked_in":
+      case "in_progress":
+        return <Clock className="w-4 h-4" />;
+      case "pending":
+        return <AlertCircle className="w-4 h-4" />;
+      default:
+        return <Clock className="w-4 h-4" />;
+    }
+  };
+  const getTypeColor = (type) => {
+    switch (type) {
+      case "cleaning":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
+      case "maintenance":
+        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
+      case "inspection":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+    }
+  };
+
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case "cleaning":
+        return <ClipboardList className="w-3 h-3" />;
+      case "maintenance":
+        return <Wrench className="w-3 h-3" />;
+      case "inspection":
+        return <Briefcase className="w-3 h-3" />;
+      default:
+        return <Circle className="w-3 h-3" />;
+    }
+  };
 
   return (
     <div className="p-4 text-gray-800 dark:text-gold-100">
@@ -169,7 +249,7 @@ const TaskPage = () => {
           <table className="min-w-full bg-white dark:bg-gray-900 rounded">
             <thead>
               <tr className="text-left border-b dark:border-gray-700">
-                <th className="p-2">Title</th>
+                <th className="p-2">Room No</th>
                 <th className="p-2">Type</th>
                 <th className="p-2">Status</th>
                 <th className="p-2">Priority</th>
@@ -192,33 +272,77 @@ const TaskPage = () => {
                 tasks.map((task) => (
                   <tr key={task._id} className="border-b dark:border-gray-700">
                     <td className="p-2">{task.title}</td>
-                    <td className="p-2 capitalize">{task.type}</td>
-                    <td className="p-2 capitalize">{task.status}</td>
-                    <td className="p-2 capitalize">{task.priority}</td>
+
+                    {/* TYPE */}
+                    <td className="p-2">
+                      <span
+                        className={`capitalize text-xs font-medium px-2 py-1 rounded-full inline-flex items-center gap-1 ${getTypeColor(
+                          task.type
+                        )}`}
+                      >
+                        {getTypeIcon(task.type)}
+                        {task.type}
+                      </span>
+                    </td>
+
+                    {/* STATUS */}
+                    <td className="p-2">
+                      <span
+                        className={`capitalize text-xs font-medium px-2 py-1 rounded-full inline-flex items-center gap-1 ${getStatusColor(
+                          task.status
+                        )}`}
+                      >
+                        {getStatusIcon(task.status)}
+                        {task.status.replace("_", " ")}
+                      </span>
+                    </td>
+
+                    {/* PRIORITY */}
+                    <td
+                      className={`p-2 capitalize ${
+                        task.priority === "high"
+                          ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                          : task.priority === "medium"
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+                          : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                      }`}
+                    >
+                      {task.priority}
+                    </td>
+
+                    {/* DUE DATE */}
                     <td className="p-2">
                       {new Date(task.dueDate).toLocaleDateString()}
                     </td>
+
+                    {/* ASSIGNED TO */}
                     <td className="p-2">
                       {task.assignedTo?.name || "Unassigned"}
                     </td>
+
+                    {/* ACTIONS */}
                     <td className="p-2 flex items-center gap-2">
                       <select
-                        className="p-1 rounded border dark:bg-gray-800"
+                        className={`p-1 rounded border dark:bg-gray-800 ${getStatusColor(
+                          task.status
+                        )}`}
                         value={task.status}
-                        onChange={(e) =>
-                          updateTaskStatus(task._id, e.target.value)
-                        }
+                        onChange={(e) => {
+                          updateTaskStatus(task._id, e.target.value);
+                        }}
                       >
                         <option value="pending">Pending</option>
                         <option value="in-progress">In Progress</option>
                         <option value="completed">Completed</option>
                       </select>
+
                       <button
                         onClick={() => openEditModal(task)}
                         className="text-gold-500 hover:text-gold-600"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
+
                       <button
                         onClick={() => deleteTask(task._id)}
                         className="text-red-500 hover:text-red-600"
@@ -241,15 +365,23 @@ const TaskPage = () => {
               {isEditing ? "Edit Task" : "Create Task"}
             </h3>
             <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="Title"
+              <select
                 className="w-full p-2 border rounded dark:bg-gray-800"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-              />
+              >
+                <option value="" disabled>
+                  SELECT AVAILABLE ROOM
+                </option>
+                {room.map((item, key) => (
+                  <option key={key} value={item.roomNumber}>
+                    {item.roomNumber}
+                  </option>
+                ))}
+              </select>
+
               <textarea
                 placeholder="Description"
                 className="w-full p-2 border rounded dark:bg-gray-800"
