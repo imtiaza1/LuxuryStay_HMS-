@@ -348,7 +348,7 @@ const RoomPage = () => {
                   {selectedRoom.images.map((img, idx) => (
                     <img
                       key={idx}
-                      src={`${api.defaults.baseURL}uploads/rooms/${img}`} // 👈 this uses the axios baseURL
+                      src={`${api.defaults.baseURL}/uploads/rooms/${img}`} // 👈 this uses the axios baseURL
                       alt={`Room ${idx}`}
                       className="rounded-lg object-cover h-28 w-full"
                     />

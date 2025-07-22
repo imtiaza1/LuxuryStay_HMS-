@@ -92,7 +92,7 @@ const Rooms = () => {
             >
               <div className="relative">
                 <img
-                  src={`${api.defaults.baseURL}uploads/rooms/${room.images?.[0]}`}
+                  src={`${api.defaults.baseURL}/uploads/rooms/${room.images?.[0]}`}
                   alt="Room"
                   className="object-cover h-28 w-full"
                 />
