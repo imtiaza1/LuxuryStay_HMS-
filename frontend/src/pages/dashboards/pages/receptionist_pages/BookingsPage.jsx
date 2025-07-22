@@ -261,7 +261,7 @@ const BookingsPage = () => {
                 <th className="px-4 py-2">Total</th>
                 <th className="px-4 py-2">Billing Status</th>
                 <th className="px-4 py-2">Booking Status</th> {/* ✅ NEW */}
-                <th className="px-4 py-2">Actions</th>
+                <th className="py-2">Details</th>
               </tr>
             </thead>
 
