@@ -131,7 +131,7 @@ const RoomDetail = () => {
         {/* Gallery */}
         <div className="lg:col-span-2 mb-6 lg:mb-0">
           <img
-            src={`${api.defaults.baseURL}uploads/rooms/${room.images[currentImage]}`}
+            src={`${api.defaults.baseURL}/uploads/rooms/${room.images[currentImage]}`}
             alt=""
             className="w-full h-96 object-cover rounded-lg"
           />
