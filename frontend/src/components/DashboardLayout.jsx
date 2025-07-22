@@ -101,19 +101,7 @@ const DashboardLayout = ({ children, title }) => {
           { name: "Rooms", icon: Key, path: "/dashboard/receptionist/rooms" },
         ];
       case ROLES.HOUSEKEEPING:
-        return [
-          ...baseItems,
-          {
-            name: "My Tasks",
-            icon: CheckSquare,
-            path: "/dashboard/housekeeping/tasks",
-          },
-          {
-            name: "Room Status",
-            icon: Hotel,
-            path: "/dashboard/housekeeping/rooms",
-          },
-        ];
+        return [...baseItems];
       case ROLES.GUEST:
         return [
           ...baseItems,

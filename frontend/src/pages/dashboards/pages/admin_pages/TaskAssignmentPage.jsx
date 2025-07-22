@@ -20,10 +20,10 @@ const TaskPage = () => {
   const [tasks, setTasks] = useState([]);
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { success, error } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
-  const { success, error } = useToast();
   const [room, setRoom] = useState([]);
 
   const [filters, setFilters] = useState({ status: "", type: "" });
@@ -112,8 +112,8 @@ const TaskPage = () => {
       setIsModalOpen(false);
       fetchTasks();
       resetForm();
-    } catch {
-      error("Operation failed");
+    } catch (err) {
+      error(err.response.data.message);
     }
   };
 
