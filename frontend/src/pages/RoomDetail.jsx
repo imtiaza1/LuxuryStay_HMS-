@@ -147,7 +147,7 @@ const RoomDetail = () => {
                 }
               >
                 <img
-                  src={`${api.defaults.baseURL}uploads/rooms/${img}`}
+                  src={`${api.defaults.baseURL}/uploads/rooms/${img}`}
                   alt=""
                   className="w-full h-20 object-cover"
                 />
