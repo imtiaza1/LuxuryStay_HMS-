@@ -24,12 +24,11 @@ export const loginUser = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "6d" }
     );
-    // Set cookie with secure settings for production
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // use secure cookie in production
-      sameSite: "None", // important when frontend and backend are on different domains
-      maxAge: 6 * 24 * 60 * 60 * 1000, // 6 days
+      secure: process.env.NODE_ENV === "production", // true only in production
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      maxAge: 6 * 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({
