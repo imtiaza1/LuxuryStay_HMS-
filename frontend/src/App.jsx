@@ -22,11 +22,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 
 // Dashboard Pages
-import AdminRoutes from "./pages/dashboards/AdminRoutes";
 import GuestDashboard from "./pages/dashboards/GuestDashboard";
-import HousekeepingDashboard from "./pages/dashboards/HousekeepingDashboard";
 import ManagerDashboard from "./pages/dashboards/ManagerDashboard";
 import ReceptionistDashboard from "./pages/dashboards/ReceptionistDashboard";
+import AdminRoutes from "./pages/dashboards/routes/AdminRoutes";
+import HousekeepingRoutes from "./pages/dashboards/routes/HousekeepingRoute";
 
 function App() {
   return (
@@ -78,10 +78,10 @@ function App() {
                     }
                   />
                   <Route
-                    path="/dashboard/housekeeping"
+                    path="/dashboard/housekeeping/*"
                     element={
                       <ProtectedRoute allowedRoles={["housekeeping"]}>
-                        <HousekeepingDashboard />
+                        <HousekeepingRoutes />
                       </ProtectedRoute>
                     }
                   />

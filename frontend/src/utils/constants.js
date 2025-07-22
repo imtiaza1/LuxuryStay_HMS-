@@ -87,7 +87,7 @@ export const API_ENDPOINTS = {
   TOTAL_REVENUE: "/api/billings/total-revenue",
   ACTIVE_GUESTS: "/api/guest/active-guests/count",
   AVAILABLE_ROOMS: "/api/rooms/available/rooms/count",
-  RECENT_BOOKINGS: "/api/bookings/",
-  HOUSEKEEPING_TASKS: "/api/tasks/",
+  RECENT_BOOKINGS: "/api/bookings",
+  HOUSEKEEPING_TASKS: "/api/tasks",
   TOTAL_BOOKINGS: "/api/bookings/total",
 };

@@ -55,11 +55,6 @@ const DashboardLayout = ({ children, title }) => {
             path: "/dashboard/admin/billing",
           },
           {
-            name: "Housekeeping",
-            icon: ClipboardList,
-            path: "/dashboard/admin/housekeeping",
-          },
-          {
             name: "TaskAsign",
             icon: CheckSquare,
             path: "/dashboard/admin/taskassign",

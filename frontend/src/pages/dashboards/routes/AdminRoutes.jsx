@@ -1,16 +1,15 @@
 // src/routes/AdminRoutes.jsx
 import { Route, Routes } from "react-router-dom";
-import DashboardLayout from "../../components/DashboardLayout";
+import DashboardLayout from "../../../components/DashboardLayout";
 
 // Import your page components
-import Dashboard from "../dashboards/AdminDashboard";
-import BillingPage from "../dashboards/pages/BillingPage";
-import BookingsPage from "../dashboards/pages/BookingsPage";
-import HousekeepingPage from "../dashboards/pages/HousekeepingPage";
-import ReviewsPage from "../dashboards/pages/ReviewsPage";
-import RoomsPage from "../dashboards/pages/RoomsPage";
-import StaffPage from "../dashboards/pages/StaffPage";
-import TaskAssignmentPage from "../dashboards/pages/TaskAssignmentPage";
+import Dashboard from "../AdminDashboard";
+import BillingPage from "../pages/admin_pages/BillingPage";
+import BookingsPage from "../pages/admin_pages/BookingsPage";
+import ReviewsPage from "../pages/admin_pages/ReviewsPage";
+import RoomsPage from "../pages/admin_pages/RoomsPage";
+import StaffPage from "../pages/admin_pages/StaffPage";
+import TaskAssignmentPage from "../pages/admin_pages/TaskAssignmentPage";
 
 const AdminRoutes = () => {
   return (
@@ -22,7 +21,6 @@ const AdminRoutes = () => {
         <Route path="bookings" element={<BookingsPage />} />
         <Route path="reviews" element={<ReviewsPage />} />
         <Route path="billing" element={<BillingPage />} />
-        <Route path="housekeeping" element={<HousekeepingPage />} />
         <Route path="taskassign" element={<TaskAssignmentPage />} />
       </Routes>
     </DashboardLayout>

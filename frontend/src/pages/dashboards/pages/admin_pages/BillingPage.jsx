@@ -1,10 +1,10 @@
 // BillingsPage.jsx
 import { AlertCircle, CheckCircle, Clock, Info } from "lucide-react";
 import { useEffect, useState } from "react";
-import LoadingSpinner from "../../../components/LoadingSpinner";
-import { useToast } from "../../../contexts/ToastContext";
-import api from "../../../utils/api";
-import { API_ENDPOINTS } from "../../../utils/constants";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
+import { useToast } from "../../../../contexts/ToastContext";
+import api from "../../../../utils/api";
+import { API_ENDPOINTS } from "../../../../utils/constants";
 
 const getBillingStatusColor = (status) => {
   switch (status) {

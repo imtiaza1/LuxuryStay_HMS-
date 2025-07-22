@@ -11,10 +11,10 @@ import {
   Wrench,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import LoadingSpinner from "../../../components/LoadingSpinner";
-import { useToast } from "../../../contexts/ToastContext";
-import api from "../../../utils/api";
-import { API_ENDPOINTS } from "../../../utils/constants";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
+import { useToast } from "../../../../contexts/ToastContext";
+import api from "../../../../utils/api";
+import { API_ENDPOINTS } from "../../../../utils/constants";
 
 const TaskPage = () => {
   const [tasks, setTasks] = useState([]);

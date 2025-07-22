@@ -1,9 +1,9 @@
 import { Edit, PlusCircle, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import LoadingSpinner from "../../../components/LoadingSpinner";
-import { useToast } from "../../../contexts/ToastContext";
-import api from "../../../utils/api";
-import { API_ENDPOINTS } from "../../../utils/constants";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
+import { useToast } from "../../../../contexts/ToastContext";
+import api from "../../../../utils/api";
+import { API_ENDPOINTS } from "../../../../utils/constants";
 
 const StaffPage = () => {
   const [staff, setStaff] = useState([]);
@@ -169,7 +169,7 @@ const StaffPage = () => {
             </thead>
             <tbody className="text-gray-800 dark:text-gray-200">
               {staff.map((person) => (
-                <tr key={person.id} className="border-t dark:border-gray-700">
+                <tr key={person._id} className="border-t dark:border-gray-700">
                   <td className="px-4 py-2">{person.name}</td>
                   <td className="px-4 py-2">{person.email}</td>
                   <td className="px-4 py-2">{person.contact}</td>
