@@ -20,7 +20,12 @@ router.get("/", protect, getTasks);
 router.get("/:id", protect, getTaskById);
 
 // update status only by admin or manager only
-router.put("/:id", protect, restrictTo("admin", "manager"), statusUpdate);
+router.put(
+  "/:id",
+  protect,
+  restrictTo("admin", "manager", "housekeeping"),
+  statusUpdate
+);
 
 // Update or delete by admin or manager only
 router.put("/update/:id", protect, restrictTo("admin", "manager"), updateTask);

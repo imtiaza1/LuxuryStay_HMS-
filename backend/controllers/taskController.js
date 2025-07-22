@@ -8,9 +8,10 @@ export const createTask = async (req, res) => {
     const { title, description, assignedToEmail, dueDate, priority, type } =
       req.body;
 
-    if (!title || !assignedToEmail || !priority || !type) {
+    if (!title || !assignedToEmail || !priority || !type || !dueDate) {
       return res.status(400).json({
-        message: "Title, assignedToEmail, priority, and type are required.",
+        message:
+          "Title, assignedToEmail, priority, type and dueDate are required.",
       });
     }
 
@@ -40,10 +41,25 @@ export const createTask = async (req, res) => {
 // GET ALL
 export const getTasks = async (req, res) => {
   try {
+    // Get all tasks
     const tasks = await Task.find()
       .populate("assignedTo", "name email role")
       .populate("createdBy", "name email role");
-    res.status(200).json({ success: true, tasks });
+
+    // Count by status
+    const totalTasks = tasks.length;
+    const progressTasks = await Task.countDocuments({ status: "in-progress" });
+    const pendingTasks = await Task.countDocuments({ status: "pending" });
+    const completedTasks = await Task.countDocuments({ status: "completed" });
+
+    res.status(200).json({
+      success: true,
+      tasks,
+      totalTasks,
+      progressTasks,
+      pendingTasks,
+      completedTasks,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
