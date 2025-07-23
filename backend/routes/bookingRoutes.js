@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  checkInNOutGuest,
   createBooking,
   deleteBooking,
   getAllBookings,
@@ -35,6 +36,9 @@ router.get(
 );
 //get total bookings
 router.get("/total", totalBookings);
+//get all checkInNOutGuest
+router.get("/checkinandcheckoutguest", checkInNOutGuest);
+
 //update bookings
 router.put(
   "/update/:id",

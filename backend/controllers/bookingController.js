@@ -106,6 +106,55 @@ export const getAllBookings = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// get all checkInNOutGuest
+export const checkInNOutGuest = async (req, res) => {
+  try {
+    const bookings = await Booking.find({
+      status: { $in: ["checked-in", "checked-out"] },
+    })
+      .populate("guestId", "name email _id ")
+      .populate("roomId", "roomNumber type _id title")
+      .populate("billingId", "status amount invoiceNumber _id");
+
+    // Separate bookings by status
+    const checkedInBookings = bookings.filter((b) => b.status === "checked-in");
+    const checkedOutBookings = bookings.filter(
+      (b) => b.status === "checked-out"
+    );
+
+    // Format both checked-in and checked-out separately
+    const formatBooking = (bookingList) =>
+      bookingList.map((booking) => ({
+        _id: booking._id,
+        guest: booking.guestId || { name: "Guest not found", email: "" },
+        room: booking.roomId || { roomNumber: "Room deleted", type: "" },
+        billing: booking.billingId || {
+          status: "N/A",
+          amount: 0,
+          invoiceNumber: "-",
+        },
+        checkInDate: booking.checkInDate,
+        checkOutDate: booking.checkOutDate,
+        createdAt: booking.createdAt,
+        updatedAt: booking.updatedAt,
+        additionalServices: booking.additionalServices,
+        status: booking.status,
+      }));
+
+    res.status(200).json({
+      success: true,
+      checkedInGuests: formatBooking(checkedInBookings),
+      checkedOutGuests: formatBooking(checkedOutBookings),
+      counts: {
+        checkedIn: checkedInBookings.length,
+        checkedOut: checkedOutBookings.length,
+        total: bookings.length,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // get bookings for guest
 export const getMyBookings = async (req, res) => {
