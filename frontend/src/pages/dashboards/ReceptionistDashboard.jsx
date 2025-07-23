@@ -292,7 +292,7 @@ const ReceptionistDashboard = () => {
                         {guest.guest.name}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {guest.room.title} • {guest.billing.amount}
+                        {guest.room.title} • {`${guest.billing.amount}\u0024`}
                       </p>
                     </div>
                     <div className="flex items-center space-x-3">

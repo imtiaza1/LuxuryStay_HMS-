@@ -94,4 +94,9 @@ export const API_ENDPOINTS = {
   MY_TASKS: "/api/housekeeping/my-tasks",
   //receptionist
   GET_ALL_CHECKED_IN_N_CHECKOUT: "/api/bookings/checkinandcheckoutguest",
+  // guest
+  GUEST_BOOKINGS: "/api/bookings/my-bookings",
+  // paymentonline
+  PAYMENT_INTENT: "/api/billing/payment-intentt",
+  CONFIRM_BILLING: "/api/billing/confirm",
 };

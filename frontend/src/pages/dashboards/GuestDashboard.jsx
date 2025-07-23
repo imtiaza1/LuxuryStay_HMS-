@@ -1,56 +1,92 @@
+import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import axios from "axios";
 import {
   AlertCircle,
   Calendar,
   CheckCircle,
   Clock,
   DollarSign,
-  Download,
-  Eye,
   MapPin,
   Star,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DashboardLayout from "../../components/DashboardLayout";
+import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../contexts/ToastContext";
+import api from "../../utils/api";
+import { API_ENDPOINTS } from "../../utils/constants";
 
 const GuestDashboard = () => {
-  const [activeTab, setActiveTab] = useState("overview");
+  const isDarkMode = document.documentElement.classList.contains("dark");
+  const [cardError, setCardError] = useState(null);
+  const [showStripeForm, setShowStripeForm] = useState(false);
+  const stripe = useStripe();
+  const elements = useElements();
+  const [processing, setProcessing] = useState(false);
 
-  const bookings = [
-    {
-      id: 1,
-      room: "Deluxe Ocean View",
-      checkIn: "2024-01-15",
-      checkOut: "2024-01-18",
-      nights: 3,
-      amount: "$897",
-      status: "confirmed",
-      image:
-        "https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=400",
-    },
-    {
-      id: 2,
-      room: "Standard Garden View",
-      checkIn: "2024-02-10",
-      checkOut: "2024-02-12",
-      nights: 2,
-      amount: "$398",
-      status: "pending",
-      image:
-        "https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400",
-    },
-    {
-      id: 3,
-      room: "Executive Suite",
-      checkIn: "2023-12-20",
-      checkOut: "2023-12-23",
-      nights: 3,
-      amount: "$1,497",
-      status: "completed",
-      image:
-        "https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&cs=tinysrgb&w=400",
-    },
-  ];
+  const [activeTab, setActiveTab] = useState("overview");
+  const [booking, setBooking] = useState([]);
+
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const { error, success } = useToast();
+
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get(API_ENDPOINTS.GUEST_BOOKINGS);
+      setBooking(res.data);
+    } catch (err) {
+      error("Failed to fetch billings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStripeSubmit = async (e) => {
+    e.preventDefault();
+    setProcessing(true);
+    if (!stripe || !elements) return;
+
+    try {
+      const res = await axios.post(
+        "http://localhost:4000/api/v1/payment/create-payment-intent",
+        {
+          amount: recentBooking.billingId.amount * 100, // Stripe needs cents
+        }
+      );
+
+      const clientSecret = res.data.clientSecret;
+
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+        },
+      });
+
+      if (result.error) {
+        setError(result.error.message);
+      } else if (result.paymentIntent.status === "succeeded") {
+        await axios.post("http://localhost:4000/api/v1/payment/confirm", {
+          bookingId: recentBooking._id,
+          amount: recentBooking.billingId.amount,
+        });
+
+        success("Payment successful! 🎉");
+        setShowStripeForm(false);
+        // Optionally refresh booking data here
+      }
+    } catch (err) {
+      error(err.response.data.message || err.message);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
 
   const reviews = [
     {
@@ -76,13 +112,13 @@ const GuestDashboard = () => {
   const quickStats = [
     {
       title: "Total Bookings",
-      value: "3",
+      value: booking?.totalBookings,
       icon: Calendar,
       color: "blue",
     },
     {
       title: "Total Spent",
-      value: "$2,792",
+      value: `$ ${booking?.totalAmountSpent}`,
       icon: DollarSign,
       color: "green",
     },
@@ -91,12 +127,6 @@ const GuestDashboard = () => {
       value: "2",
       icon: Star,
       color: "yellow",
-    },
-    {
-      title: "Loyalty Points",
-      value: "1,250",
-      icon: Star,
-      color: "purple",
     },
   ];
 
@@ -125,6 +155,10 @@ const GuestDashboard = () => {
         return <Clock className="w-4 h-4" />;
     }
   };
+
+  const recentBooking = booking?.bookings
+    ?.slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
 
   return (
     <DashboardLayout title="Guest Dashboard">
@@ -232,60 +266,60 @@ const GuestDashboard = () => {
             {activeTab === "overview" && (
               <div className="space-y-6">
                 {/* Current Booking */}
+                {/* Current Booking */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     Current Booking
                   </h3>
-                  {bookings.find((b) => b.status === "confirmed") ? (
-                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+
+                  {recentBooking ? (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <img
-                            src={
-                              bookings.find((b) => b.status === "confirmed")
-                                .image
-                            }
-                            alt="Room"
-                            className="w-16 h-16 rounded-lg object-cover"
-                          />
-                          <div>
-                            <h4 className="font-medium text-gray-900 dark:text-white">
-                              {
-                                bookings.find((b) => b.status === "confirmed")
-                                  .room
-                              }
-                            </h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {
-                                bookings.find((b) => b.status === "confirmed")
-                                  .checkIn
-                              }{" "}
-                              -{" "}
-                              {
-                                bookings.find((b) => b.status === "confirmed")
-                                  .checkOut
-                              }
-                            </p>
-                          </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900 dark:text-white">
+                            {recentBooking.roomId?.title || "Room Title"}
+                          </h4>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {recentBooking.checkInDate?.split("T")[0]} -{" "}
+                            {recentBooking.checkOutDate?.split("T")[0]}
+                          </p>
                         </div>
+
                         <div className="text-right">
                           <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                            {
-                              bookings.find((b) => b.status === "confirmed")
-                                .amount
-                            }
+                            ${recentBooking.billingId?.amount || 0}
                           </p>
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
-                            <CheckCircle className="w-4 h-4" />
-                            Confirmed
+
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                              recentBooking.billingId?.status === "paid"
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+                            }`}
+                          >
+                            {recentBooking.billingId?.status === "paid" ? (
+                              <CheckCircle className="w-4 h-4" />
+                            ) : (
+                              <Clock className="w-4 h-4" />
+                            )}
+                            {recentBooking.billingId?.status}
                           </span>
+
+                          {recentBooking.billingId?.status === "pending" && (
+                            <button
+                              onClick={() => setShowStripeForm(true)}
+                              className="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 text-white text-sm px-4 py-2 rounded-md transition"
+                            >
+                              Pay Now
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
                   ) : (
                     <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                       <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                      <p>No current bookings</p>
+                      <p>No bookings found</p>
                       <Link
                         to="/rooms"
                         className="mt-2 text-gold-600 hover:text-gold-500 font-medium"
@@ -316,13 +350,6 @@ const GuestDashboard = () => {
                       </span>
                       <span className="text-gray-400">1 week ago</span>
                     </div>
-                    <div className="flex items-center space-x-3 text-sm">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Loyalty points earned: 250 points
-                      </span>
-                      <span className="text-gray-400">2 weeks ago</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -330,39 +357,39 @@ const GuestDashboard = () => {
 
             {activeTab === "bookings" && (
               <div className="space-y-6">
-                {bookings.map((booking) => (
+                {booking?.bookings.map((booking) => (
                   <div
-                    key={booking.id}
+                    key={booking._id}
                     className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-4">
-                        <img
+                        {/* <img
                           src={booking.image}
                           alt={booking.room}
                           className="w-20 h-20 rounded-lg object-cover"
-                        />
+                        /> */}
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            {booking.room}
+                            {booking.roomId.title}
                           </h3>
                           <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {booking.checkIn} - {booking.checkOut} (
-                            {booking.nights} nights)
+                            {booking.checkInDate.slice(0, 10)} -{" "}
+                            {booking.checkOutDate.slice(0, 10)}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                          {booking.amount}
+                          ${booking.billingId.amount}
                         </p>
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            booking.status
+                            booking.billingId.status
                           )}`}
                         >
-                          {getStatusIcon(booking.status)}
-                          {booking.status}
+                          {getStatusIcon(booking.billingId.status)}
+                          {booking.billingId.status}
                         </span>
                       </div>
                     </div>
@@ -377,7 +404,7 @@ const GuestDashboard = () => {
                           <span>Check-in: 3:00 PM</span>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      {/* <div className="flex items-center space-x-2">
                         <button className="flex items-center space-x-1 px-3 py-1 text-sm text-gold-600 hover:text-gold-500">
                           <Eye className="w-4 h-4" />
                           <span>View Details</span>
@@ -386,7 +413,7 @@ const GuestDashboard = () => {
                           <Download className="w-4 h-4" />
                           <span>Invoice</span>
                         </button>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 ))}
@@ -449,22 +476,11 @@ const GuestDashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        First Name
+                        full Name
                       </label>
                       <input
                         type="text"
-                        value="Guest"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                        readOnly
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Last Name
-                      </label>
-                      <input
-                        type="text"
-                        value="User"
+                        value={user.name}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-500"
                         readOnly
                       />
@@ -475,7 +491,7 @@ const GuestDashboard = () => {
                       </label>
                       <input
                         type="email"
-                        value="guest@luxurystay.com"
+                        value={user.email}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-500"
                         readOnly
                       />
@@ -486,48 +502,74 @@ const GuestDashboard = () => {
                       </label>
                       <input
                         type="tel"
-                        value="+1234567894"
+                        value={user?.phone || "Not Found!"}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-500"
                         readOnly
                       />
                     </div>
                   </div>
                 </div>
-
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Loyalty Program
-                  </h3>
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Current Points
-                      </p>
-                      <p className="text-2xl font-bold text-gold-600">1,250</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Status
-                      </p>
-                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Gold Member
-                      </p>
-                    </div>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                    <div
-                      className="bg-gold-500 h-2 rounded-full"
-                      style={{ width: "62%" }}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                    750 points until Platinum status
-                  </p>
-                </div>
               </div>
             )}
           </div>
         </div>
+        {showStripeForm && (
+          <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
+            <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl w-full max-w-md shadow-lg">
+              <h2 className="text-xl font-semibold mb-4 text-center text-gray-800 dark:text-white">
+                Complete Payment
+              </h2>
+
+              <form onSubmit={handleStripeSubmit} className="space-y-4">
+                <CardElement
+                  onChange={(e) => {
+                    if (e.error) {
+                      setCardError(e.error.message);
+                    } else {
+                      setCardError(null);
+                    }
+                  }}
+                  options={{
+                    style: {
+                      base: {
+                        fontSize: "16px",
+                        color: isDarkMode ? "#f9fafb" : "#1f2937",
+                        "::placeholder": {
+                          color: isDarkMode ? "#9ca3af" : "#6b7280",
+                        },
+                      },
+                      invalid: {
+                        color: "#ef4444",
+                      },
+                    },
+                  }}
+                />
+
+                {cardError && (
+                  <p className="text-red-500 text-sm">{cardError}</p>
+                )}
+                {error && !cardError && (
+                  <p className="text-red-500 text-sm">{error}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={!stripe || processing}
+                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-5 py-2 rounded-md transition"
+                >
+                  {processing ? "Processing..." : "Pay Now"}
+                </button>
+              </form>
+
+              <button
+                onClick={() => setShowStripeForm(false)}
+                className="mt-4 w-full bg-gray-200 dark:bg-red-500 hover:bg-gray-300 dark:hover:bg-red-600 text-gray-800 dark:text-white text-sm px-5 py-2 rounded-md transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
