@@ -160,12 +160,22 @@ export const checkInNOutGuest = async (req, res) => {
 export const getMyBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({ guestId: req.user.id })
-      .populate("roomId", "roomNumber type")
+      .populate("roomId", "roomNumber type title")
       .populate("billingId", "status amount invoiceNumber");
+
+    // 🧮 Calculate total amount spent
+    const totalAmountSpent = bookings.reduce((total, booking) => {
+      return total + (booking.billingId?.amount || 0);
+    }, 0);
+
+    // 📦 Count total bookings
+    const totalBookings = bookings.length;
 
     res.status(200).json({
       success: true,
       bookings,
+      totalBookings,
+      totalAmountSpent,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
