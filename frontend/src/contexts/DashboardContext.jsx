@@ -21,6 +21,7 @@ export const DashboardProvider = ({ children }) => {
   const [availableRooms, setAvailableRooms] = useState(0);
   const [recentBookings, setRecentBookings] = useState([]);
   const [housekeepingTasks, setHousekeepingTasks] = useState([]);
+  const [CheckedINNOut, setCheckedINNOut] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export const DashboardProvider = ({ children }) => {
           roomsRes,
           recentBookingsRes,
           tasksRes,
+          getAllCheckInNCheckOut,
         ] = await Promise.all([
           api.get(API_ENDPOINTS.TOTAL_REVENUE),
           api.get(API_ENDPOINTS.TOTAL_BOOKINGS),
@@ -45,6 +47,7 @@ export const DashboardProvider = ({ children }) => {
           api.get(API_ENDPOINTS.AVAILABLE_ROOMS),
           api.get(API_ENDPOINTS.RECENT_BOOKINGS),
           api.get(API_ENDPOINTS.HOUSEKEEPING_TASKS),
+          api.get(API_ENDPOINTS.GET_ALL_CHECKED_IN_N_CHECKOUT),
         ]);
 
         setTotalRevenue(revenueRes.data.totalRevenue || 0);
@@ -53,6 +56,7 @@ export const DashboardProvider = ({ children }) => {
         setAvailableRooms(roomsRes.data.totalRooms || 0);
         setRecentBookings(recentBookingsRes.data.bookings || []);
         setHousekeepingTasks(tasksRes.data.tasks || []);
+        setCheckedINNOut(getAllCheckInNCheckOut.data || []);
       } catch (error) {
         console.error("Dashboard data fetch error:", error);
       } finally {
@@ -71,6 +75,7 @@ export const DashboardProvider = ({ children }) => {
     recentBookings,
     housekeepingTasks,
     loading,
+    CheckedINNOut,
   };
 
   return (

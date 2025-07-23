@@ -92,4 +92,6 @@ export const API_ENDPOINTS = {
   TOTAL_BOOKINGS: "/api/bookings/total",
   //housekeeping /my-tasks"
   MY_TASKS: "/api/housekeeping/my-tasks",
+  //receptionist
+  GET_ALL_CHECKED_IN_N_CHECKOUT: "/api/bookings/checkinandcheckoutguest",
 };

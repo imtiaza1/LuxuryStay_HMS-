@@ -5,12 +5,10 @@ import {
   DollarSign,
   Home,
   Hotel,
-  Key,
   LogOut,
   Menu,
   Settings,
   Star,
-  UserCheck,
   Users,
   X,
 } from "lucide-react";
@@ -84,21 +82,10 @@ const DashboardLayout = ({ children, title }) => {
         return [
           ...baseItems,
           {
-            name: "Check-in/out",
-            icon: UserCheck,
-            path: "/dashboard/receptionist/checkin",
-          },
-          {
             name: "Bookings",
             icon: Calendar,
             path: "/dashboard/receptionist/bookings",
           },
-          {
-            name: "Guests",
-            icon: Users,
-            path: "/dashboard/receptionist/guests",
-          },
-          { name: "Rooms", icon: Key, path: "/dashboard/receptionist/rooms" },
         ];
       case ROLES.HOUSEKEEPING:
         return [...baseItems];
