@@ -47,6 +47,32 @@ export const getAllGuest = async (req, res) => {
     });
   }
 };
+// Delete a guest by ID
+export const deleteGuest = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find user by ID and ensure role is "guest"
+    const user = await User.findOne({ _id: id, role: "guest" });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Guest not found or not a guest",
+      });
+    }
+
+    await User.findByIdAndDelete(id);
+
+    res.status(200).json({
+      message: "Guest deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message || "Failed to delete guest",
+    });
+  }
+};
+
 // Get total count of active guest accounts
 export const totalActiveGuests = async (req, res) => {
   try {

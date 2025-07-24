@@ -106,6 +106,43 @@ export const getAllBookings = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// Get recent 3 bookings
+export const recentBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find()
+      .sort({ createdAt: -1 }) // 🆕 Sort by latest
+      .limit(3) // 🆕 Only latest 3 bookings
+      .populate("guestId", "name email _id")
+      .populate("roomId", "roomNumber type _id")
+      .populate("billingId", "status amount invoiceNumber _id");
+
+    // Handle missing references gracefully
+    const safeBookings = bookings.map((booking) => ({
+      _id: booking._id,
+      guest: booking.guestId || { name: "Guest not found", email: "" },
+      room: booking.roomId || { roomNumber: "Room deleted", type: "" },
+      billing: booking.billingId || {
+        status: "N/A",
+        amount: 0,
+        invoiceNumber: "-",
+      },
+      checkInDate: booking.checkInDate,
+      checkOutDate: booking.checkOutDate,
+      createdAt: booking.createdAt,
+      updatedAt: booking.updatedAt,
+      additionalServices: booking.additionalServices,
+      status: booking.status,
+    }));
+
+    res.status(200).json({
+      success: true,
+      bookings: safeBookings,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // get all checkInNOutGuest
 export const checkInNOutGuest = async (req, res) => {
   try {

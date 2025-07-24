@@ -5,6 +5,7 @@ import {
   deleteBooking,
   getAllBookings,
   getMyBookings,
+  recentBookings,
   totalBookings,
   updateBookingStatus,
 } from "../controllers/bookingController.js";
@@ -26,6 +27,12 @@ router.get(
   protect,
   restrictTo("admin", "manager", "receptionist"),
   getAllBookings
+);
+router.get(
+  "/recent/bookings",
+  protect,
+  restrictTo("admin", "manager"),
+  recentBookings
 );
 //get guestbookings
 router.get(
