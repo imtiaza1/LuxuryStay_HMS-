@@ -43,8 +43,12 @@ export const TASK_STATUS = {
 // API endpoints  for backend integration
 export const API_ENDPOINTS = {
   LOGIN: "/api/auth/login",
-  GUEST_REGISTER: "/api/guest/register",
   //GUEST
+  GUEST_REGISTER: "/api/guest/register",
+  GET_ALL_GUEST: "/api/guest/",
+  DELETE_GUEST: "/api/guest/delete",
+  UPDATE_PROFILE: "/api/auth/update-profile",
+  //
   RECEPTIONIST_REGISTER: "/api/receptionist/register",
   HOUSEKEEPING_REGISTER: "/api/housekeeping/register",
   MANAGER_REGISTER: "/api/manager/register",
@@ -87,7 +91,7 @@ export const API_ENDPOINTS = {
   TOTAL_REVENUE: "/api/billings/total-revenue",
   ACTIVE_GUESTS: "/api/guest/active-guests/count",
   AVAILABLE_ROOMS: "/api/rooms/available/rooms/count",
-  RECENT_BOOKINGS: "/api/bookings",
+  RECENT_BOOKINGS: "/api/bookings/recent/bookings",
   HOUSEKEEPING_TASKS: "/api/tasks",
   TOTAL_BOOKINGS: "/api/bookings/total",
   //housekeeping /my-tasks"
@@ -97,6 +101,6 @@ export const API_ENDPOINTS = {
   // guest
   GUEST_BOOKINGS: "/api/bookings/my-bookings",
   // paymentonline
-  PAYMENT_INTENT: "/api/billing/payment-intentt",
-  CONFIRM_BILLING: "/api/billing/confirm",
+  PAYMENT_INTENT: "/api/billings/payment-intent",
+  CONFIRM_BILLING: "/api/billings/confirm",
 };

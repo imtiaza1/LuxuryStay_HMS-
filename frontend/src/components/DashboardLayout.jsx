@@ -1,13 +1,11 @@
 import {
   Calendar,
   CheckSquare,
-  ClipboardList,
   DollarSign,
   Home,
   Hotel,
   LogOut,
   Menu,
-  Settings,
   Star,
   Users,
   X,
@@ -53,6 +51,11 @@ const DashboardLayout = ({ children, title }) => {
             path: "/dashboard/admin/billing",
           },
           {
+            name: "Guest",
+            icon: Users,
+            path: "/dashboard/admin/guest",
+          },
+          {
             name: "TaskAsign",
             icon: CheckSquare,
             path: "/dashboard/admin/taskassign",
@@ -67,14 +70,24 @@ const DashboardLayout = ({ children, title }) => {
             path: "/dashboard/manager/bookings",
           },
           {
-            name: "Housekeeping",
-            icon: ClipboardList,
-            path: "/dashboard/manager/housekeeping",
+            name: "Guest",
+            icon: Users,
+            path: "/dashboard/manager/guest",
           },
           {
-            name: "Revenue",
-            icon: DollarSign,
-            path: "/dashboard/manager/revenue",
+            name: "Staff Management",
+            icon: Users,
+            path: "/dashboard/manager/staff",
+          },
+          {
+            name: "Room Management",
+            icon: Hotel,
+            path: "/dashboard/manager/rooms",
+          },
+          {
+            name: "TaskAsign",
+            icon: CheckSquare,
+            path: "/dashboard/manager/taskassign",
           },
           { name: "Staff", icon: Users, path: "/dashboard/manager/staff" },
         ];
@@ -90,17 +103,7 @@ const DashboardLayout = ({ children, title }) => {
       case ROLES.HOUSEKEEPING:
         return [...baseItems];
       case ROLES.GUEST:
-        return [
-          ...baseItems,
-          {
-            name: "My Bookings",
-            icon: Calendar,
-            path: "/dashboard/guest/bookings",
-          },
-          { name: "Browse Rooms", icon: Hotel, path: "/dashboard/guest/rooms" },
-          { name: "Reviews", icon: Star, path: "/dashboard/guest/reviews" },
-          { name: "Profile", icon: Settings, path: "/dashboard/guest/profile" },
-        ];
+        return [...baseItems];
       default:
         return baseItems;
     }

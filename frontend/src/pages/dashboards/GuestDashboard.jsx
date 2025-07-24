@@ -1,5 +1,4 @@
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import axios from "axios";
 import {
   AlertCircle,
   Calendar,
@@ -31,6 +30,15 @@ const GuestDashboard = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const { error, success } = useToast();
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isEditable, setIsEditable] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: user.name || "",
+    email: user.email || "",
+    phone: user.phone || "",
+    password: "", // optional
+  });
 
   const fetchBookings = async () => {
     try {
@@ -44,18 +52,19 @@ const GuestDashboard = () => {
     }
   };
 
+  const [errorMsg, setErrorMsg] = useState(null);
+
   const handleStripeSubmit = async (e) => {
     e.preventDefault();
     setProcessing(true);
-    if (!stripe || !elements) return;
+    setErrorMsg(null);
+
+    if (!stripe || !elements || !selectedBooking) return;
 
     try {
-      const res = await axios.post(
-        "http://localhost:4000/api/v1/payment/create-payment-intent",
-        {
-          amount: recentBooking.billingId.amount * 100, // Stripe needs cents
-        }
-      );
+      const res = await api.post(API_ENDPOINTS.PAYMENT_INTENT, {
+        amount: selectedBooking.billingId.amount * 100,
+      });
 
       const clientSecret = res.data.clientSecret;
 
@@ -66,21 +75,44 @@ const GuestDashboard = () => {
       });
 
       if (result.error) {
-        setError(result.error.message);
+        setErrorMsg(result.error.message);
       } else if (result.paymentIntent.status === "succeeded") {
-        await axios.post("http://localhost:4000/api/v1/payment/confirm", {
-          bookingId: recentBooking._id,
-          amount: recentBooking.billingId.amount,
+        await api.post(API_ENDPOINTS.CONFIRM_BILLING, {
+          bookingId: selectedBooking._id,
+          amount: selectedBooking.billingId.amount,
         });
 
         success("Payment successful! 🎉");
         setShowStripeForm(false);
-        // Optionally refresh booking data here
+        setSelectedBooking(null); // Clear after payment
+        await fetchBookings(); // Refresh list
       }
     } catch (err) {
-      error(err.response.data.message || err.message);
+      error(err.response?.data?.message || err.message);
     } finally {
       setProcessing(false);
+    }
+  };
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const updatePayload = {
+        name: formData.name,
+        phone: formData.phone,
+      };
+
+      if (formData.password?.trim()) {
+        updatePayload.password = formData.password;
+      }
+
+      const res = await api.put(API_ENDPOINTS.UPDATE_PROFILE, updatePayload);
+      success("Profile updated successfully");
+      setIsEditable(false);
+
+      // Optionally update local user state
+    } catch (err) {
+      error(err.response?.data?.message || "Update failed");
     }
   };
 
@@ -266,7 +298,6 @@ const GuestDashboard = () => {
             {activeTab === "overview" && (
               <div className="space-y-6">
                 {/* Current Booking */}
-                {/* Current Booking */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     Current Booking
@@ -291,13 +322,14 @@ const GuestDashboard = () => {
                           </p>
 
                           <span
+                            key={recentBooking.billingId?.status}
                             className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                              recentBooking.billingId?.status === "paid"
+                              recentBooking.billingId?.status === "confirmed"
                                 ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
                                 : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
                             }`}
                           >
-                            {recentBooking.billingId?.status === "paid" ? (
+                            {recentBooking.billingId?.status === "confirmed" ? (
                               <CheckCircle className="w-4 h-4" />
                             ) : (
                               <Clock className="w-4 h-4" />
@@ -307,7 +339,10 @@ const GuestDashboard = () => {
 
                           {recentBooking.billingId?.status === "pending" && (
                             <button
-                              onClick={() => setShowStripeForm(true)}
+                              onClick={() => {
+                                setSelectedBooking(recentBooking);
+                                setShowStripeForm(true);
+                              }}
                               className="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 text-white text-sm px-4 py-2 rounded-md transition"
                             >
                               Pay Now
@@ -357,42 +392,51 @@ const GuestDashboard = () => {
 
             {activeTab === "bookings" && (
               <div className="space-y-6">
-                {booking?.bookings.map((booking) => (
+                {booking?.bookings.map((b) => (
                   <div
-                    key={booking._id}
+                    key={b._id}
                     className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-4">
-                        {/* <img
-                          src={booking.image}
-                          alt={booking.room}
-                          className="w-20 h-20 rounded-lg object-cover"
-                        /> */}
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            {booking.roomId.title}
+                            {b.roomId.title}
                           </h3>
                           <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {booking.checkInDate.slice(0, 10)} -{" "}
-                            {booking.checkOutDate.slice(0, 10)}
+                            {b.checkInDate.slice(0, 10)} -{" "}
+                            {b.checkOutDate.slice(0, 10)}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                          ${booking.billingId.amount}
+                          ${b.billingId.amount}
                         </p>
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            booking.billingId.status
+                            b.billingId.status
                           )}`}
                         >
-                          {getStatusIcon(booking.billingId.status)}
-                          {booking.billingId.status}
+                          {getStatusIcon(b.billingId.status)}
+                          {b.billingId.status}
                         </span>
+
+                        {/* Show Pay Now if pending */}
+                        {b.billingId.status === "pending" && (
+                          <button
+                            onClick={() => {
+                              setSelectedBooking(b);
+                              setShowStripeForm(true);
+                            }}
+                            className="mt-2 w-full bg-yellow-600 hover:bg-yellow-700 text-white text-sm px-4 py-2 rounded-md transition"
+                          >
+                            Pay Now
+                          </button>
+                        )}
                       </div>
                     </div>
+
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                         <div className="flex items-center space-x-1">
@@ -404,16 +448,6 @@ const GuestDashboard = () => {
                           <span>Check-in: 3:00 PM</span>
                         </div>
                       </div>
-                      {/* <div className="flex items-center space-x-2">
-                        <button className="flex items-center space-x-1 px-3 py-1 text-sm text-gold-600 hover:text-gold-500">
-                          <Eye className="w-4 h-4" />
-                          <span>View Details</span>
-                        </button>
-                        <button className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-500">
-                          <Download className="w-4 h-4" />
-                          <span>Invoice</span>
-                        </button>
-                      </div> */}
                     </div>
                   </div>
                 ))}
@@ -466,48 +500,131 @@ const GuestDashboard = () => {
                 ))}
               </div>
             )}
-
             {activeTab === "profile" && (
               <div className="space-y-6">
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Personal Information
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Personal Information
+                    </h3>
+                    {!isEditable && (
+                      <button
+                        type="button"
+                        onClick={() => setIsEditable(true)}
+                        className="bg-gold-500 text-white px-4 py-1 rounded-md hover:bg-gold-600 transition text-sm"
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </div>
+
+                  <form
+                    onSubmit={handleProfileUpdate}
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                  >
+                    {/* Full Name */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        full Name
+                        Full Name
                       </label>
                       <input
                         type="text"
-                        value={user.name}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                        readOnly
+                        value={formData.name}
+                        disabled={!isEditable}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
+                        className={`w-full px-3 py-2 border rounded-md text-gray-900 dark:text-white ${
+                          isEditable
+                            ? "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-gold-500"
+                            : "bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 cursor-not-allowed"
+                        }`}
                       />
                     </div>
+
+                    {/* Email */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Email
+                        Email{" "}
+                        <span className="text-xs text-red-500">
+                          (cannot be changed)
+                        </span>
                       </label>
                       <input
                         type="email"
-                        value={user.email}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                        readOnly
+                        value={formData.email}
+                        disabled
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
                       />
                     </div>
+
+                    {/* Phone */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Phone
                       </label>
                       <input
                         type="tel"
-                        value={user?.phone || "Not Found!"}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                        readOnly
+                        value={formData.phone}
+                        disabled={!isEditable}
+                        onChange={(e) =>
+                          setFormData({ ...formData, phone: e.target.value })
+                        }
+                        className={`w-full px-3 py-2 border rounded-md text-gray-900 dark:text-white ${
+                          isEditable
+                            ? "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-gold-500"
+                            : "bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 cursor-not-allowed"
+                        }`}
                       />
                     </div>
-                  </div>
+
+                    {/* New Password (Editable Only) */}
+                    {isEditable && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          New Password
+                        </label>
+                        <input
+                          type="password"
+                          value={formData.password || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              password: e.target.value,
+                            })
+                          }
+                          placeholder="Leave empty to keep current"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-gold-500"
+                        />
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    {isEditable && (
+                      <div className="col-span-1 sm:col-span-2 flex justify-end gap-3 mt-4">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...user,
+                              password: "",
+                              oldPassword: "",
+                            });
+                            setIsEditable(false);
+                          }}
+                          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="bg-gold-500 text-white px-6 py-2 rounded hover:bg-gold-600 transition"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
+                    )}
+                  </form>
                 </div>
               </div>
             )}

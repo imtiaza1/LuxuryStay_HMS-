@@ -31,34 +31,44 @@ export const DashboardProvider = ({ children }) => {
       try {
         setLoading(true);
 
-        // These endpoints should return values based on user role
-        const [
-          revenueRes,
-          bookingsRes,
-          guestsRes,
-          roomsRes,
-          recentBookingsRes,
-          tasksRes,
-          getAllCheckInNCheckOut,
-        ] = await Promise.all([
-          api.get(API_ENDPOINTS.TOTAL_REVENUE),
-          api.get(API_ENDPOINTS.TOTAL_BOOKINGS),
-          api.get(API_ENDPOINTS.ACTIVE_GUESTS),
-          api.get(API_ENDPOINTS.AVAILABLE_ROOMS),
-          api.get(API_ENDPOINTS.RECENT_BOOKINGS),
-          api.get(API_ENDPOINTS.HOUSEKEEPING_TASKS),
-          api.get(API_ENDPOINTS.GET_ALL_CHECKED_IN_N_CHECKOUT),
-        ]);
+        let results = [];
 
-        setTotalRevenue(revenueRes.data.totalRevenue || 0);
-        setTotalBookings(bookingsRes.data.totalBookings || 0);
-        setActiveGuests(guestsRes.data.totalActiveGuests || 0);
-        setAvailableRooms(roomsRes.data.totalRooms || 0);
-        setRecentBookings(recentBookingsRes.data.bookings || []);
-        setHousekeepingTasks(tasksRes.data.tasks || []);
-        setCheckedINNOut(getAllCheckInNCheckOut.data || []);
+        if (["admin", "manager"].includes(user.role)) {
+          results = await Promise.all([
+            api.get(API_ENDPOINTS.TOTAL_REVENUE),
+            api.get(API_ENDPOINTS.TOTAL_BOOKINGS),
+            api.get(API_ENDPOINTS.ACTIVE_GUESTS),
+            api.get(API_ENDPOINTS.AVAILABLE_ROOMS),
+            api.get(API_ENDPOINTS.RECENT_BOOKINGS),
+            api.get(API_ENDPOINTS.HOUSEKEEPING_TASKS),
+            api.get(API_ENDPOINTS.GET_ALL_CHECKED_IN_N_CHECKOUT),
+          ]);
+
+          let i = 0;
+          setTotalRevenue(results[i++].data.totalRevenue || 0);
+          setTotalBookings(results[i++].data.totalBookings || 0);
+          setActiveGuests(results[i++].data.totalActiveGuests || 0);
+          setAvailableRooms(results[i++].data.totalRooms || 0);
+          setRecentBookings(results[i++].data.bookings || []);
+          setHousekeepingTasks(results[i++].data.tasks || []);
+          setCheckedINNOut(results[i++].data || []);
+        } else if (user.role === "receptionist") {
+          results = await Promise.all([
+            api.get(API_ENDPOINTS.ACTIVE_GUESTS),
+            api.get(API_ENDPOINTS.AVAILABLE_ROOMS),
+            api.get(API_ENDPOINTS.GET_ALL_CHECKED_IN_N_CHECKOUT),
+          ]);
+
+          let i = 0;
+          setActiveGuests(results[i++].data.totalActiveGuests || 0);
+          setAvailableRooms(results[i++].data.totalRooms || 0);
+          setCheckedINNOut(results[i++].data || []);
+        }
       } catch (error) {
-        console.error("Dashboard data fetch error:", error);
+        console.error(
+          "Dashboard data fetch error:",
+          error.response?.data?.message || error.message
+        );
       } finally {
         setLoading(false);
       }
@@ -74,8 +84,8 @@ export const DashboardProvider = ({ children }) => {
     availableRooms,
     recentBookings,
     housekeepingTasks,
-    loading,
     CheckedINNOut,
+    loading,
   };
 
   return (

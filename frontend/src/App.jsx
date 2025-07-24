@@ -23,9 +23,9 @@ import Register from "./pages/Register";
 
 // Dashboard Pages
 import GuestDashboard from "./pages/dashboards/GuestDashboard";
-import ManagerDashboard from "./pages/dashboards/ManagerDashboard";
 import AdminRoutes from "./pages/dashboards/routes/AdminRoutes";
 import HousekeepingRoutes from "./pages/dashboards/routes/HousekeepingRoute";
+import ManagerRoutes from "./pages/dashboards/routes/ManagerRoutes";
 import ReceptionistRoutes from "./pages/dashboards/routes/ReceptionistRoutes";
 
 function App() {
@@ -62,10 +62,10 @@ function App() {
                     }
                   />
                   <Route
-                    path="/dashboard/manager"
+                    path="/dashboard/manager/*"
                     element={
                       <ProtectedRoute allowedRoles={["manager"]}>
-                        <ManagerDashboard />
+                        <ManagerRoutes />
                       </ProtectedRoute>
                     }
                   />
