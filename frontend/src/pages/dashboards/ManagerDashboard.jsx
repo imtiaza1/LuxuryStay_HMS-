@@ -62,7 +62,7 @@ const AdminDashboard = () => {
       change: "+5.4%",
       trend: "up",
       icon: Hotel,
-      color: "orange",
+      color: "yellow",
     },
   ];
 
