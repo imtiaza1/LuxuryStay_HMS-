@@ -36,5 +36,33 @@ LuxuryStay is a full-stack hotel management system designed to streamline hotel 
 
 ---
 
-## 📁 Frontend Folder Structure
+---
+
+## 🔄 User Flow (Roles Overview)
+
+- **Guest:** Browse rooms → Book → Pay with Stripe → View billing
+- **Receptionist:** Check-in/out guests → Search guest records
+- **Manager:** View booking stats, revenue reports
+- **Admin:** Manage rooms, users, bookings, housekeeping
+
+---
+
+## 🧪 How to Run Locally
+
+```bash
+# 1. Clone the repository
+git clone github.com/yourusername/luxurystay.git](https://github.com/imtiaza1/LuxuryStay_HMS)
+cd luxurystay
+
+# 2. Install dependencies
+npm install
+
+# 3. Create environment variables
+# .env (example)
+VITE_API_BASE_URL=http://localhost:5000/api
+VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_public_key
+
+# 4. Start the frontend
+npm run dev
+
 
