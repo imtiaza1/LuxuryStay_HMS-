@@ -65,9 +65,7 @@ const GuestDashboard = () => {
       const res = await api.post(API_ENDPOINTS.PAYMENT_INTENT, {
         amount: selectedBooking.billingId.amount * 100,
       });
-
       const clientSecret = res.data.clientSecret;
-
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
