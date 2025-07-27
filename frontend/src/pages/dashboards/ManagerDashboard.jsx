@@ -59,7 +59,7 @@ const AdminDashboard = () => {
     {
       title: "Available Rooms",
       value: availableRooms,
-      change: "+5.4%",
+      change: "+6.4%",
       trend: "up",
       icon: Hotel,
       color: "yellow",
